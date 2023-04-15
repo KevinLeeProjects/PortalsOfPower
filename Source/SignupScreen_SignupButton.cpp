@@ -23,6 +23,7 @@
 FString EMAIL;
 FString USERNAME;
 FString PASSWORD;
+FString APIKEY;
 
 void USignupScreen_SignupButton::NativeConstruct()
 {
@@ -80,6 +81,7 @@ void USignupScreen_SignupButton::CreateAccount(FHttpRequestPtr Request, FHttpRes
 		// Handle the response data here
 		FString API = Response->GetContentAsString();
 		API.ReplaceInline(TEXT("\""), TEXT(""), ESearchCase::CaseSensitive);
+		APIKEY = *API;
 		FString authURL = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" + API;
 
 		// Create a JSON request payload
@@ -137,7 +139,8 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 
 		// Bind a function to handle the HTTP response
 		HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::OnSignInUserResponse);
-
+		//HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::SendEmailVerification);
+		// 
 		// Send the HTTP request
 		HttpRequest->ProcessRequest();
 	}
@@ -148,9 +151,60 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 	}
 }
 
+void USignupScreen_SignupButton::SendEmailVerification(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
+{
+	if (bSuccess && Response->GetResponseCode() == EHttpResponseCodes::Ok)
+	{
+		// Create JSON payload for the request
+		FString JsonPayload = FString::Printf(TEXT("{\"requestType\":\"VERIFY_EMAIL\",\"idToken\":\"%s\"}"), *EMAIL);
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *JsonPayload);
+		// Set the URL for the Firebase Authentication REST API endpoint
+		FString Url = FString::Printf(TEXT("https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=%s"), *APIKEY);
+		UE_LOG(LogTemp, Warning, TEXT("https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=%s"), *APIKEY);
+		// Create HTTP request
+		TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+		HttpRequest->SetVerb("POST");
+		HttpRequest->SetURL(Url);
+		HttpRequest->SetHeader("Content-Type", "application/json");
+		HttpRequest->SetContentAsString(JsonPayload);
+
+		// Set callback for handling response
+		HttpRequest->OnProcessRequestComplete().BindLambda([](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful)
+			{
+				if (bSuccessful && Response.IsValid())
+				{
+					int32 ResponseCode = Response->GetResponseCode();
+					FString ResponseContent = Response->GetContentAsString();
+
+					if (ResponseCode == 200)
+					{
+						// Email sent successfully, handle success
+						UE_LOG(LogTemp, Warning, TEXT("YESSSS"));
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(ResponseCode));
+					}
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("?????"));
+				}
+			});
+
+		// Send HTTP request
+		HttpRequest->ProcessRequest();
+	}
+	else
+	{
+		// Handle the error response
+		UE_LOG(LogTemp, Error, TEXT("ERROR"));
+	}
+}
 
 void USignupScreen_SignupButton::OnSignInUserResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
 {
+	UE_LOG(LogTemp, Error, TEXT("HELLO!"));
 	if (bSuccess && Response->GetResponseCode() == EHttpResponseCodes::Ok)
     {
         // Parse the JSON response
@@ -158,15 +212,17 @@ void USignupScreen_SignupButton::OnSignInUserResponse(FHttpRequestPtr Request, F
         TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
         FJsonSerializer::Deserialize(JsonReader, JsonObject);
 
+		UE_LOG(LogTemp, Error, TEXT("%s"), *Response->GetContentAsString());
+
         // Extract the user token and other information from the JSON response
         FString Token = JsonObject->GetStringField("idToken");
         FString UserId = JsonObject->GetStringField("localId");
         // ... You can extract other relevant data as needed
 
         // Handle the successful response
-        UE_LOG(LogTemp, Log, TEXT("User sign-in successful!"));
-        UE_LOG(LogTemp, Log, TEXT("Token: %s"), *Token);
-        UE_LOG(LogTemp, Log, TEXT("User ID: %s"), *UserId);
+        UE_LOG(LogTemp, Error, TEXT("User sign-in successful!"));
+        UE_LOG(LogTemp, Error, TEXT("Token: %s"), *Token);
+        UE_LOG(LogTemp, Error, TEXT("User ID: %s"), *UserId);
     }
     else
     {
