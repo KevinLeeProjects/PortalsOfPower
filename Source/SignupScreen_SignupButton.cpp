@@ -113,6 +113,31 @@ void USignupScreen_SignupButton::CreateAccount(FHttpRequestPtr Request, FHttpRes
 	}
 }
 
+void USignupScreen_SignupButton::OnSignInUserResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
+{
+	if (bSuccess && Response->GetResponseCode() == EHttpResponseCodes::Ok)
+	{
+		// Parse the JSON response
+		TSharedPtr<FJsonObject> JsonObject;
+		TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+		FJsonSerializer::Deserialize(JsonReader, JsonObject);
+
+		// Extract the user token and other information from the JSON response
+		FString Token = JsonObject->GetStringField("idToken");
+		FString UserId = JsonObject->GetStringField("localId");
+		// ... You can extract other relevant data as needed
+
+		IDTOKEN = *Token;
+
+		CreatePlayerDatabase(Request, Response, bSuccess);
+	}
+	else
+	{
+		// Handle the error response
+		UE_LOG(LogTemp, Error, TEXT("Failed to sign in user: %d %s"), Response->GetResponseCode(), *Response->GetContentAsString());
+	}
+}
+
 //Create Firebase Realtime Database through HTTP request
 void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseRequest, FHttpResponsePtr databaseResponse, bool databaseSuccessful)
 {
@@ -198,29 +223,4 @@ void USignupScreen_SignupButton::SendEmailVerification(FHttpRequestPtr Request, 
 		// Handle the error response
 		UE_LOG(LogTemp, Error, TEXT("ERROR"));
 	}
-}
-
-void USignupScreen_SignupButton::OnSignInUserResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
-{
-	if (bSuccess && Response->GetResponseCode() == EHttpResponseCodes::Ok)
-    {
-        // Parse the JSON response
-        TSharedPtr<FJsonObject> JsonObject;
-        TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
-        FJsonSerializer::Deserialize(JsonReader, JsonObject);
-
-        // Extract the user token and other information from the JSON response
-        FString Token = JsonObject->GetStringField("idToken");
-        FString UserId = JsonObject->GetStringField("localId");
-        // ... You can extract other relevant data as needed
-
-		IDTOKEN = *Token;
-
-		CreatePlayerDatabase(Request, Response, bSuccess);
-    }
-    else
-    {
-        // Handle the error response
-        UE_LOG(LogTemp, Error, TEXT("Failed to sign in user: %d %s"), Response->GetResponseCode(), *Response->GetContentAsString());
-    }
 }
