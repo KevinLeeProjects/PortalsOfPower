@@ -7,6 +7,7 @@
 #include "Components/EditableTextBox.h"
 #include "Components/CheckBox.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 
 //HTTP and JSON
@@ -31,6 +32,11 @@ void USignupScreen_SignupButton::NativeConstruct()
 	if (SignupButton)
 	{
 		SignupButton->OnClicked.AddDynamic(this, &USignupScreen_SignupButton::SignupButtonOnClicked);
+	}
+
+	if (BackButton)
+	{
+		BackButton->OnClicked.AddDynamic(this, &USignupScreen_SignupButton::ToLoginScreen);
 	}
 }
 
@@ -268,7 +274,17 @@ void USignupScreen_SignupButton::SendEmailVerification(FHttpRequestPtr Request, 
 					UE_LOG(LogTemp, Warning, TEXT("ERROR"));
 				}
 			});
-
+		if (FreezeScreen)
+		{
+			FreezeScreen->SetVisibility(ESlateVisibility::Visible);
+			SuccessScreen->SetVisibility(ESlateVisibility::Visible);
+			AccountSuccessfullyCreated->SetVisibility(ESlateVisibility::Visible);
+			DoneButton->SetVisibility(ESlateVisibility::Visible);
+			if (DoneButton)
+			{
+				DoneButton->OnClicked.AddDynamic(this, &USignupScreen_SignupButton::ToLoginScreen);
+			}
+		}
 		// Send HTTP request
 		HttpRequest->ProcessRequest();
 	}
@@ -276,5 +292,16 @@ void USignupScreen_SignupButton::SendEmailVerification(FHttpRequestPtr Request, 
 	{
 		// Handle the error response
 		UE_LOG(LogTemp, Error, TEXT("ERROR"));
+	}
+}
+
+void USignupScreen_SignupButton::ToLoginScreen()
+{
+	UWorld* world = GetWorld();
+
+	if (world)
+	{
+		FString loginLevelName = "LoginScreen";
+		UGameplayStatics::OpenLevel(world, FName(*loginLevelName));
 	}
 }

@@ -44,6 +44,21 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UCheckBox* AgreeBox;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UImage* FreezeScreen;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UImage* SuccessScreen;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* AccountSuccessfullyCreated;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UButton* DoneButton;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UButton* BackButton;
+
 	virtual void NativeConstruct() override;
 
 	void SignUpUser(FString& email, FString& password, FString& username);
@@ -55,6 +70,9 @@ protected:
 	void OnSignInUserResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess);
 
 	void SendEmailVerification(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess);
+
+	UFUNCTION()
+	void ToLoginScreen();
 
 	UFUNCTION()
 	void SignupButtonOnClicked();
