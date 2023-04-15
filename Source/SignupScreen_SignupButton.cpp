@@ -187,12 +187,18 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 		TSharedPtr<FJsonObject> charClass = MakeShareable(new FJsonObject);
 		charClass->SetStringField(TEXT("Class"), "Chef");
 
+		TSharedPtr<FJsonObject> charLevel = MakeShareable(new FJsonObject);
+		charLevel->SetNumberField(TEXT("Exp"), 0);
+		charLevel->SetNumberField(TEXT("Level"), 1);
+
 		// Create an FJsonValueObject from the JSON object
 		TSharedPtr<FJsonValueObject> JsonValueObject = MakeShareable(new FJsonValueObject(stats));
 		TSharedPtr<FJsonValueObject> classJsonValueObject = MakeShareable(new FJsonValueObject(charClass));
+		TSharedPtr<FJsonValueObject> levelJsonValueObject = MakeShareable(new FJsonValueObject(charLevel));
 
 		charJsonArray.Add(classJsonValueObject);
 		charJsonArray.Add(JsonValueObject);
+		charJsonArray.Add(levelJsonValueObject);
 
 		// Set the JSON array as a field in the JSON object
 		charJsonObject->SetArrayField(TEXT("CharacterInfo"), charJsonArray);
