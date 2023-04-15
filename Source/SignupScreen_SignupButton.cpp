@@ -172,11 +172,10 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 
 		// Create a JSON request payload
 		TSharedPtr<FJsonObject> charJsonObject = MakeShareable(new FJsonObject);
-		TArray<TSharedPtr<FJsonValue>> statsJsonArray;
+		TArray<TSharedPtr<FJsonValue>> charJsonArray;
 
 		// Create a JSON object for the first element
 		TSharedPtr<FJsonObject> stats = MakeShareable(new FJsonObject);
-		stats->SetStringField(TEXT("Class"), "Chef");
 		stats->SetNumberField(TEXT("Attack"), 5); 
 		stats->SetNumberField(TEXT("Firing Frequency"), 10);
 		stats->SetNumberField(TEXT("Pace"), 5);
@@ -185,13 +184,18 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 		stats->SetNumberField(TEXT("Health Regeneration Per Second"), 4);
 		stats->SetNumberField(TEXT("Luck"), 5);
 
+		TSharedPtr<FJsonObject> charClass = MakeShareable(new FJsonObject);
+		charClass->SetStringField(TEXT("Class"), "Chef");
+
 		// Create an FJsonValueObject from the JSON object
 		TSharedPtr<FJsonValueObject> JsonValueObject = MakeShareable(new FJsonValueObject(stats));
+		TSharedPtr<FJsonValueObject> classJsonValueObject = MakeShareable(new FJsonValueObject(charClass));
 
-		statsJsonArray.Add(JsonValueObject);
+		charJsonArray.Add(classJsonValueObject);
+		charJsonArray.Add(JsonValueObject);
 
 		// Set the JSON array as a field in the JSON object
-		charJsonObject->SetArrayField(TEXT("Stats"), statsJsonArray);
+		charJsonObject->SetArrayField(TEXT("CharacterInfo"), charJsonArray);
 
 		// Serialize the JSON payload to a string
 		FString charJsonString;
