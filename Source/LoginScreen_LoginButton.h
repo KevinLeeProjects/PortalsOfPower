@@ -4,6 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+
+//HTTP and JSON
+#include "HttpModule.h"
+#include "Interfaces/IHttpResponse.h"
+#include "JsonUtilities.h"
+#include "JsonObjectConverter.h"
+#include "Json.h"
+
 #include "LoginScreen_LoginButton.generated.h"
 /**
  * 
@@ -37,7 +45,19 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-	virtual void Login(FString username, FString password);
+	virtual void SearchUsername(FString& username, FString& password);
+
+	void GetAPI(FString& username, FString& password);
+
+	void GetEmailFromUsername(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful);
+
+	void GetUniqueKey(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful);
+
+	void SignInUser();
+
+	void OnSignInUserResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful);
+
+	void OpenGameClient();
 
 	UFUNCTION()
 	void LoginButtonOnClicked();
