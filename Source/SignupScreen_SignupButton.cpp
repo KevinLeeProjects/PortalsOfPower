@@ -24,6 +24,7 @@ FString EMAIL;
 FString USERNAME;
 FString PASSWORD;
 FString APIKEY;
+FString IDTOKEN;
 
 void USignupScreen_SignupButton::NativeConstruct()
 {
@@ -47,7 +48,6 @@ void USignupScreen_SignupButton::SignupButtonOnClicked()
 	if (matchingPassword && noBlankInputs && state)
 	{
 		SignUpUser(email, password, username);
-		UE_LOG(LogTemp, Warning, TEXT("All True"));
 	}
 }
 
@@ -77,7 +77,6 @@ void USignupScreen_SignupButton::CreateAccount(FHttpRequestPtr Request, FHttpRes
 {
 	if (Successful && Response.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *EMAIL);
 		// Handle the response data here
 		FString API = Response->GetContentAsString();
 		API.ReplaceInline(TEXT("\""), TEXT(""), ESearchCase::CaseSensitive);
@@ -102,8 +101,8 @@ void USignupScreen_SignupButton::CreateAccount(FHttpRequestPtr Request, FHttpRes
 		HttpRequest->SetHeader("Content-Type", "application/json");
 		HttpRequest->SetContentAsString(JsonString);
 
-		HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::CreatePlayerDatabase);
-
+		HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::OnSignInUserResponse);
+		
 		// Send the HTTP request
 		HttpRequest->ProcessRequest();
 	}
@@ -117,8 +116,8 @@ void USignupScreen_SignupButton::CreateAccount(FHttpRequestPtr Request, FHttpRes
 //Create Firebase Realtime Database through HTTP request
 void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseRequest, FHttpResponsePtr databaseResponse, bool databaseSuccessful)
 {
-	if (databaseSuccessful && databaseResponse->GetResponseCode() == EHttpResponseCodes::Ok)
-	{
+	/*if (databaseSuccessful && databaseResponse->GetResponseCode() == EHttpResponseCodes::Ok)
+	{*/
 		FString tempUser = *USERNAME;
 		FString databaseURL = "https://portals-of-power-default-rtdb.firebaseio.com/players/" + tempUser + ".json";
 		// Create a JSON request payload
@@ -138,17 +137,16 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 		HttpRequest->SetContentAsString(databaseJsonString);
 
 		// Bind a function to handle the HTTP response
-		HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::OnSignInUserResponse);
-		//HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::SendEmailVerification);
-		// 
+		HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::SendEmailVerification);
+		
 		// Send the HTTP request
 		HttpRequest->ProcessRequest();
-	}
-	else
-	{
-		// Handle the error
-		UE_LOG(LogTemp, Error, TEXT("Failed to retrieve data from Firebase Realtime Database"));
-	}
+	//}
+	//else
+	//{
+	//	// Handle the error
+	//	UE_LOG(LogTemp, Error, TEXT("Failed to retrieve data from Firebase Realtime Database"));
+	//}
 }
 
 void USignupScreen_SignupButton::SendEmailVerification(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
@@ -156,11 +154,11 @@ void USignupScreen_SignupButton::SendEmailVerification(FHttpRequestPtr Request, 
 	if (bSuccess && Response->GetResponseCode() == EHttpResponseCodes::Ok)
 	{
 		// Create JSON payload for the request
-		FString JsonPayload = FString::Printf(TEXT("{\"requestType\":\"VERIFY_EMAIL\",\"idToken\":\"%s\"}"), *EMAIL);
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *JsonPayload);
+		FString JsonPayload = FString::Printf(TEXT("{\"requestType\":\"VERIFY_EMAIL\",\"idToken\":\"%s\"}"), *IDTOKEN);
+
 		// Set the URL for the Firebase Authentication REST API endpoint
 		FString Url = FString::Printf(TEXT("https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=%s"), *APIKEY);
-		UE_LOG(LogTemp, Warning, TEXT("https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=%s"), *APIKEY);
+
 		// Create HTTP request
 		TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
 		HttpRequest->SetVerb("POST");
@@ -176,19 +174,19 @@ void USignupScreen_SignupButton::SendEmailVerification(FHttpRequestPtr Request, 
 					int32 ResponseCode = Response->GetResponseCode();
 					FString ResponseContent = Response->GetContentAsString();
 
-					if (ResponseCode == 200)
-					{
-						// Email sent successfully, handle success
-						UE_LOG(LogTemp, Warning, TEXT("YESSSS"));
-					}
-					else
-					{
-						UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(ResponseCode));
-					}
+					//if (ResponseCode == 200)
+					//{
+					//	// Email sent successfully, handle success
+					//	UE_LOG(LogTemp, Warning, TEXT("YESSSS"));
+					//}
+					//else
+					//{
+					//	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::FromInt(ResponseCode));
+					//}
 				}
 				else
 				{
-					UE_LOG(LogTemp, Warning, TEXT("?????"));
+					UE_LOG(LogTemp, Warning, TEXT("ERROR"));
 				}
 			});
 
@@ -204,7 +202,6 @@ void USignupScreen_SignupButton::SendEmailVerification(FHttpRequestPtr Request, 
 
 void USignupScreen_SignupButton::OnSignInUserResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
 {
-	UE_LOG(LogTemp, Error, TEXT("HELLO!"));
 	if (bSuccess && Response->GetResponseCode() == EHttpResponseCodes::Ok)
     {
         // Parse the JSON response
@@ -212,17 +209,14 @@ void USignupScreen_SignupButton::OnSignInUserResponse(FHttpRequestPtr Request, F
         TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
         FJsonSerializer::Deserialize(JsonReader, JsonObject);
 
-		UE_LOG(LogTemp, Error, TEXT("%s"), *Response->GetContentAsString());
-
         // Extract the user token and other information from the JSON response
         FString Token = JsonObject->GetStringField("idToken");
         FString UserId = JsonObject->GetStringField("localId");
         // ... You can extract other relevant data as needed
 
-        // Handle the successful response
-        UE_LOG(LogTemp, Error, TEXT("User sign-in successful!"));
-        UE_LOG(LogTemp, Error, TEXT("Token: %s"), *Token);
-        UE_LOG(LogTemp, Error, TEXT("User ID: %s"), *UserId);
+		IDTOKEN = *Token;
+
+		CreatePlayerDatabase(Request, Response, bSuccess);
     }
     else
     {
