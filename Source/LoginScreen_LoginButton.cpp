@@ -88,50 +88,10 @@ void ULoginScreen_LoginButton::SearchUsername(FString& username, FString& passwo
 	HttpRequest->SetVerb("GET");
 	HttpRequest->SetURL(URL);
 
-	HttpRequest->OnProcessRequestComplete().BindUObject(this, &ULoginScreen_LoginButton::GetUniqueKey);
-
+	//HttpRequest->OnProcessRequestComplete().BindUObject(this, &ULoginScreen_LoginButton::GetUniqueKey);
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &ULoginScreen_LoginButton::GetEmailFromUsername);
 	// Send the HTTP request
 	HttpRequest->ProcessRequest();
-}
-
-void ULoginScreen_LoginButton::GetUniqueKey(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful)
-{
-	if (bSuccessful && Response.IsValid())
-	{
-		// Handle the response data here
-		FString ResponseStr = Response->GetContentAsString();
-
-		// Parse the JSON data into a FJsonDom
-		TSharedPtr<FJsonObject> JsonObject;
-		TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(ResponseStr);
-
-		if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
-		{
-			// Get the name of the first child object of the JSON object
-			if (JsonObject->Values.Num() > 0)
-			{
-				FString uniqueKey = JsonObject->Values.CreateConstIterator().Key();
-
-				UNIQUE_KEY = *uniqueKey;
-
-				FString URL = TEXT("https://portals-of-power-default-rtdb.firebaseio.com/players/" + LOGIN_USERNAME.ToLower() + "/" + UNIQUE_KEY + ".json");
-
-				TSharedRef<IHttpRequest, ESPMode::ThreadSafe> newHttpRequest = FHttpModule::Get().CreateRequest();
-				newHttpRequest->SetVerb("GET");
-				newHttpRequest->SetURL(URL);
-
-				newHttpRequest->OnProcessRequestComplete().BindUObject(this, &ULoginScreen_LoginButton::GetEmailFromUsername);
-
-				// Send the HTTP request
-				newHttpRequest->ProcessRequest();
-			}
-		}
-	}
-	else
-	{
-		// Handle the error
-		UE_LOG(LogTemp, Error, TEXT("Failed to retrieve data from Firebase Realtime Database"));
-	}
 }
 
 void ULoginScreen_LoginButton::GetEmailFromUsername(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful)

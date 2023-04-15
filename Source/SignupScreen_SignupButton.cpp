@@ -144,10 +144,11 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 	/*if (databaseSuccessful && databaseResponse->GetResponseCode() == EHttpResponseCodes::Ok)
 	{*/
 		FString tempUser = *USERNAME;
-		FString databaseURL = "https://portals-of-power-default-rtdb.firebaseio.com/players/" + tempUser + ".json";
+		FString databaseURL = "https://portals-of-power-default-rtdb.firebaseio.com/players/" + tempUser.ToLower() + ".json";
 		// Create a JSON request payload
 		TSharedPtr<FJsonObject> databaseJsonObject = MakeShareable(new FJsonObject);
 		databaseJsonObject->SetStringField("Email", *EMAIL);
+		databaseJsonObject->SetStringField("Username", *USERNAME);
 
 		// Serialize the JSON payload to a string
 		FString databaseJsonString;
@@ -156,16 +157,59 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 
 		// Create an HTTP request
 		TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
-		HttpRequest->SetVerb("POST");
+		HttpRequest->SetVerb("PUT");
 		HttpRequest->SetURL(databaseURL);
 		HttpRequest->SetHeader("Content-Type", "application/json");
 		HttpRequest->SetContentAsString(databaseJsonString);
 
 		// Bind a function to handle the HTTP response
-		HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::SendEmailVerification);
+		//HttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::SendEmailVerification);
 		
 		// Send the HTTP request
 		HttpRequest->ProcessRequest();
+
+		FString createCharacterURL = "https://portals-of-power-default-rtdb.firebaseio.com/players/" + tempUser.ToLower() + "/Characters/Char1.json";
+
+		// Create a JSON request payload
+		TSharedPtr<FJsonObject> charJsonObject = MakeShareable(new FJsonObject);
+		TArray<TSharedPtr<FJsonValue>> statsJsonArray;
+
+		// Create a JSON object for the first element
+		TSharedPtr<FJsonObject> stats = MakeShareable(new FJsonObject);
+		stats->SetStringField(TEXT("Class"), "Chef");
+		stats->SetNumberField(TEXT("Attack"), 5); 
+		stats->SetNumberField(TEXT("Firing Frequency"), 10);
+		stats->SetNumberField(TEXT("Pace"), 5);
+		stats->SetNumberField(TEXT("Resilience"), 5);
+		stats->SetNumberField(TEXT("Health"), 100);
+		stats->SetNumberField(TEXT("Health Regeneration Per Second"), 4);
+		stats->SetNumberField(TEXT("Luck"), 5);
+
+		// Create an FJsonValueObject from the JSON object
+		TSharedPtr<FJsonValueObject> JsonValueObject = MakeShareable(new FJsonValueObject(stats));
+
+		statsJsonArray.Add(JsonValueObject);
+
+		// Set the JSON array as a field in the JSON object
+		charJsonObject->SetArrayField(TEXT("Stats"), statsJsonArray);
+
+		// Serialize the JSON payload to a string
+		FString charJsonString;
+		TSharedRef<TJsonWriter<>> charJsonWriter = TJsonWriterFactory<>::Create(&charJsonString);
+		FJsonSerializer::Serialize(charJsonObject.ToSharedRef(), charJsonWriter);
+
+		// Create an HTTP request
+		TSharedRef<IHttpRequest> charHttpRequest = FHttpModule::Get().CreateRequest();
+		charHttpRequest->SetVerb("PUT");
+		charHttpRequest->SetURL(createCharacterURL);
+		charHttpRequest->SetHeader("Content-Type", "application/json");
+		charHttpRequest->SetContentAsString(charJsonString);
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *charJsonString);
+		// Bind a function to handle the HTTP response
+		charHttpRequest->OnProcessRequestComplete().BindUObject(this, &USignupScreen_SignupButton::SendEmailVerification);
+
+		// Send the HTTP request
+		charHttpRequest->ProcessRequest();
 	//}
 	//else
 	//{

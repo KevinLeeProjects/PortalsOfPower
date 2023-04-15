@@ -51,8 +51,6 @@ protected:
 
 	void GetEmailFromUsername(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful);
 
-	void GetUniqueKey(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful);
-
 	void SignInUser();
 
 	void OnSignInUserResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful);

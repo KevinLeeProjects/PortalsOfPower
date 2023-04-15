@@ -54,6 +54,8 @@ protected:
 
 	void OnSignInUserResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess);
 
+	void SendEmailVerification(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess);
+
 	UFUNCTION()
 	void SignupButtonOnClicked();
 };
