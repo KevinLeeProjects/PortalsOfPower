@@ -18,10 +18,10 @@
 #include<iostream>
 #include<algorithm>
 
-FString EMAIL;
-FString USERNAME;
-FString PASSWORD;
-FString APIKEY;
+FString LOGIN_EMAIL;
+FString LOGIN_USERNAME;
+FString LOGIN_PASSWORD;
+FString API_KEY;
 //FString IDTOKEN;
 FString UNIQUE_KEY;
 
@@ -68,7 +68,7 @@ void ULoginScreen_LoginButton::GetAPI(FString& username, FString& password)
 		{
 			FString API = Response->GetContentAsString();
 			API.ReplaceInline(TEXT("\""), TEXT(""), ESearchCase::CaseSensitive);
-			APIKEY = *API;
+			API_KEY = *API;
 		});
 	SearchUsername(username, password);
 	// Send the HTTP request
@@ -77,9 +77,9 @@ void ULoginScreen_LoginButton::GetAPI(FString& username, FString& password)
 
 void ULoginScreen_LoginButton::SearchUsername(FString& username, FString& password)
 {
-	USERNAME = *username;
-	PASSWORD = *password;
-	FString authURL = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + APIKEY;
+	LOGIN_USERNAME = *username;
+	LOGIN_PASSWORD = *password;
+	FString authURL = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY;
 	// Construct the REST API URL
 	FString URL = TEXT("https://portals-of-power-default-rtdb.firebaseio.com/players/" + username.ToLower() + ".json");
 
@@ -114,7 +114,7 @@ void ULoginScreen_LoginButton::GetUniqueKey(FHttpRequestPtr Request, FHttpRespon
 
 				UNIQUE_KEY = *uniqueKey;
 
-				FString URL = TEXT("https://portals-of-power-default-rtdb.firebaseio.com/players/" + USERNAME.ToLower() + "/" + UNIQUE_KEY + ".json");
+				FString URL = TEXT("https://portals-of-power-default-rtdb.firebaseio.com/players/" + LOGIN_USERNAME.ToLower() + "/" + UNIQUE_KEY + ".json");
 
 				TSharedRef<IHttpRequest, ESPMode::ThreadSafe> newHttpRequest = FHttpModule::Get().CreateRequest();
 				newHttpRequest->SetVerb("GET");
@@ -151,7 +151,7 @@ void ULoginScreen_LoginButton::GetEmailFromUsername(FHttpRequestPtr Request, FHt
 
 			if (JsonObject->TryGetStringField("Email", jsonEmail))
 			{
-				EMAIL = *jsonEmail;
+				LOGIN_EMAIL = *jsonEmail;
 				SignInUser();
 			}
 		}
@@ -166,12 +166,12 @@ void ULoginScreen_LoginButton::GetEmailFromUsername(FHttpRequestPtr Request, FHt
 void ULoginScreen_LoginButton::SignInUser()
 {
 	// Construct the request URL
-	FString Url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + APIKEY;
+	FString Url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY;
 	
 	// Create a JSON request payload
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
-	JsonObject->SetStringField("email", EMAIL);
-	JsonObject->SetStringField("password", PASSWORD);
+	JsonObject->SetStringField("email", LOGIN_EMAIL);
+	JsonObject->SetStringField("password", LOGIN_PASSWORD);
 	JsonObject->SetBoolField("returnSecureToken", true);
 
 	// Serialize the JSON payload to a string
