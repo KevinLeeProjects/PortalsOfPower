@@ -155,6 +155,7 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 		TSharedPtr<FJsonObject> databaseJsonObject = MakeShareable(new FJsonObject);
 		databaseJsonObject->SetStringField("Email", *EMAIL);
 		databaseJsonObject->SetStringField("Username", *USERNAME);
+		databaseJsonObject->SetBoolField("TutorialComplete", false);
 
 		// Serialize the JSON payload to a string
 		FString databaseJsonString;
