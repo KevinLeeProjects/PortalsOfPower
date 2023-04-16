@@ -2,6 +2,7 @@
 
 //Standard widge, header, and game class
 #include "LoginScreen_LoginButton.h"
+#include "GlobalVariables.h"
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
@@ -42,7 +43,6 @@ void ULoginScreen_LoginButton::LoginButtonOnClicked()
 {
 	FString username = UsernameInput->GetText().ToString();
 	FString password = PasswordInput->GetText().ToString();
-	
 	if (username.IsEmpty() || password.IsEmpty())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Username or password is empty"));
@@ -70,6 +70,7 @@ void ULoginScreen_LoginButton::GetAPI(FString& username, FString& password)
 			API.ReplaceInline(TEXT("\""), TEXT(""), ESearchCase::CaseSensitive);
 			API_KEY = *API;
 		});
+	GlobalVariables().GetInstance().SetAPI(API_KEY);
 	SearchUsername(username, password);
 	// Send the HTTP request
 	HttpRequest->ProcessRequest();
@@ -166,8 +167,9 @@ void ULoginScreen_LoginButton::OnSignInUserResponse(FHttpRequestPtr Request, FHt
 		FString Token = JsonObject->GetStringField("idToken");
 		FString UserId = JsonObject->GetStringField("localId");
 		// ... You can extract other relevant data as needed
-
+	
 		// Handle the successful response
+		GlobalVariables().GetInstance().SetUsername(LOGIN_USERNAME);
 		OpenGameClient();
 	}
 	else
