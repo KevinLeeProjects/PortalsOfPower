@@ -45,7 +45,7 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-	virtual void SearchUsername(FString& username, FString& password);
+	virtual void SearchUsername(const FString& username, const FString& password);
 
 	void GetAPI(FString& username, FString& password);
 

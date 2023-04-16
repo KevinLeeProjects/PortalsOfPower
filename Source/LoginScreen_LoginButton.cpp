@@ -64,19 +64,21 @@ void ULoginScreen_LoginButton::GetAPI(FString& username, FString& password)
 	HttpRequest->SetURL(databaseAPIURL);
 
 	// Set the response callback
-	HttpRequest->OnProcessRequestComplete().BindLambda([](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful)
+	HttpRequest->OnProcessRequestComplete().BindLambda([this, username, password](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful)
 		{
 			FString API = Response->GetContentAsString();
 			API.ReplaceInline(TEXT("\""), TEXT(""), ESearchCase::CaseSensitive);
 			API_KEY = *API;
+			GlobalVariables().GetInstance().SetAPI(API_KEY);
+			SearchUsername(username, password);
 		});
-	GlobalVariables().GetInstance().SetAPI(API_KEY);
-	SearchUsername(username, password);
+	
+	
 	// Send the HTTP request
 	HttpRequest->ProcessRequest();
 }
 
-void ULoginScreen_LoginButton::SearchUsername(FString& username, FString& password)
+void ULoginScreen_LoginButton::SearchUsername(const FString& username, const FString& password)
 {
 	LOGIN_USERNAME = *username;
 	LOGIN_PASSWORD = *password;
