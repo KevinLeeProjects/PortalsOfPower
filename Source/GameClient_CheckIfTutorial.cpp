@@ -61,8 +61,7 @@ void AGameClient_CheckIfTutorial::TutorialRequestResponse()
 {
 	if (GlobalVariables().GetInstance().GetTutorialComplete() == "false")
 	{
-		FString setTutorialComplete = "true";
-		GlobalVariables().GetInstance().SetTutorialComplete(setTutorialComplete);
+		//GlobalVariables().GetInstance().SetTutorialComplete(setTutorialComplete);
 		UWorld* world = GetWorld();
 
 		if (world)
