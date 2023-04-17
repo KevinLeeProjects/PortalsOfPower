@@ -59,9 +59,9 @@ void AGameClient_CheckIfTutorial::SetTutorialCheck(FHttpRequestPtr Request, FHtt
 
 void AGameClient_CheckIfTutorial::TutorialRequestResponse()
 {
+	//Open tutorial
 	if (GlobalVariables().GetInstance().GetTutorialComplete() == "false")
 	{
-		//GlobalVariables().GetInstance().SetTutorialComplete(setTutorialComplete);
 		UWorld* world = GetWorld();
 
 		if (world)
