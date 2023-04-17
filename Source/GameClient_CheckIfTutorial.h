@@ -27,7 +27,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void TutorialRequestResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful);
+	void SetTutorialCheck(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful);
+	void TutorialRequestResponse();
 
 public:	
 	// Called every frame

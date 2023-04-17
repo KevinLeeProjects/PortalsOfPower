@@ -27,23 +27,42 @@ AGameClient_CheckIfTutorial::AGameClient_CheckIfTutorial()
 void AGameClient_CheckIfTutorial::BeginPlay()
 {
 	Super::BeginPlay();
-	FString databasePlayerURL = GlobalVariables().GetInstance().GetDBURL() + "/players/" + GlobalVariables().GetInstance().GetUsername() + "/TutorialComplete.json";
-	
-	// Create the HTTP request
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
-	HttpRequest->SetVerb("GET");
-	HttpRequest->SetURL(databasePlayerURL);
+	if (GlobalVariables().GetInstance().GetTutorialComplete().IsEmpty())
+	{
+		//New Instance
+		UE_LOG(LogTemp, Warning, TEXT("New Instance"));
+		FString databasePlayerURL = GlobalVariables().GetInstance().GetDBURL() + "/players/" + GlobalVariables().GetInstance().GetUsername() + "/TutorialComplete.json";
 
-	// Set the response callback
-	HttpRequest->OnProcessRequestComplete().BindUObject(this, &AGameClient_CheckIfTutorial::TutorialRequestResponse);
-	// Send the HTTP request
-	HttpRequest->ProcessRequest();
+		// Create the HTTP request
+		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+		HttpRequest->SetVerb("GET");
+		HttpRequest->SetURL(databasePlayerURL);
+
+		// Set the response callback
+		HttpRequest->OnProcessRequestComplete().BindUObject(this, &AGameClient_CheckIfTutorial::SetTutorialCheck);
+		// Send the HTTP request
+		HttpRequest->ProcessRequest();
+	}
+	else
+	{
+		TutorialRequestResponse();
+	}
+	
 }
 
-void AGameClient_CheckIfTutorial::TutorialRequestResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful)
+void AGameClient_CheckIfTutorial::SetTutorialCheck(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful)
 {
-	if (Response->GetContentAsString() == "false")
+	FString response = Response->GetContentAsString();
+	GlobalVariables().GetInstance().SetTutorialComplete(response);
+	TutorialRequestResponse();
+}
+
+void AGameClient_CheckIfTutorial::TutorialRequestResponse()
+{
+	if (GlobalVariables().GetInstance().GetTutorialComplete() == "false")
 	{
+		FString setTutorialComplete = "true";
+		GlobalVariables().GetInstance().SetTutorialComplete(setTutorialComplete);
 		UWorld* world = GetWorld();
 
 		if (world)
