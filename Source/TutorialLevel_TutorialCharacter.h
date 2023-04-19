@@ -28,6 +28,7 @@ protected:
 
 	void MovementCode();
 	void RotationCode();
+	void Jump();
 
 public:	
 	// Called every frame

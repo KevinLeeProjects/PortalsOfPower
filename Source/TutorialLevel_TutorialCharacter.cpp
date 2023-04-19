@@ -11,13 +11,17 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
+
+bool isJumping;
 
 // Sets default values
 ATutorialLevel_TutorialCharacter::ATutorialLevel_TutorialCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	isJumping = false;
 	//UE5 has a default player, so doing this sets the player we create to the default
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
@@ -50,7 +54,7 @@ void ATutorialLevel_TutorialCharacter::BeginPlay()
 		FRotator SpawnRotation = myPlayer->GetActorRotation();
 		// Set a default player
 		myPlayer = GetWorld()->GetFirstPlayerController()->GetPawn();
-		//myPlayer = World->SpawnActor<ATutorialLevel_TutorialCharacter>(ATutorialLevel_TutorialCharacter::StaticClass(), SpawnLocation, SpawnRotation);
+		
 	}
 }
 
@@ -61,6 +65,7 @@ void ATutorialLevel_TutorialCharacter::Tick(float DeltaTime)
 
 	MovementCode();
 	RotationCode();
+	Jump();
 }
 
 void ATutorialLevel_TutorialCharacter::MovementCode()
@@ -121,6 +126,34 @@ void ATutorialLevel_TutorialCharacter::RotationCode()
 	if (SpringArm)
 	{
 		SpringArm->SetRelativeRotation(GetControlRotation() - GetActorRotation());
+	}
+}
+
+void ATutorialLevel_TutorialCharacter::Jump()
+{
+	// Check if the character can jump
+	if (!isJumping && GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::SpaceBar) && GetCharacterMovement()->IsMovingOnGround())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("JUMP"));
+		// Set the jumping flag
+		isJumping = true;
+
+		// Set the jump velocity
+		//FVector JumpVelocity = FVector(0.f, 0.f, 20.f);
+		//GetCharacterMovement()->Velocity += JumpVelocity;
+		
+		FVector JumpVelocity = FVector(0.f, 0.f, 375.f);
+		LaunchCharacter(JumpVelocity, true, true);
+
+		//// Notify the server that the character has jumped
+		//if (GetLocalRole() == ROLE_Authority)
+		//{
+		//	OnJumped();
+		//}
+	}
+	if (GetCharacterMovement()->IsMovingOnGround())
+	{
+		isJumping = false;
 	}
 }
 
