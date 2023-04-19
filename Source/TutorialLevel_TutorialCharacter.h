@@ -26,6 +26,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
     AActor* myPlayer; // Player
 
+	void MovementCode();
+	void RotationCode();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

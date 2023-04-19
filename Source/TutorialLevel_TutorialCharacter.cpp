@@ -5,6 +5,9 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/InputSettings.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
@@ -20,29 +23,34 @@ ATutorialLevel_TutorialCharacter::ATutorialLevel_TutorialCharacter()
 
 	USpringArmComponent* springArm = CreateDefaultSubobject<USpringArmComponent>("springArm");
 	springArm->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	springArm->SetupAttachment(GetMesh());
+	springArm->TargetArmLength = 300.f;
+	springArm->bUsePawnControlRotation = true;
 
 	mainCamera = CreateDefaultSubobject<UCameraComponent>("mainCamera");
-	mainCamera->SetupAttachment(springArm);
-
-	//UCapsuleComponent* capsuleComponent = myPlayer->FindComponentByClass<UCapsuleComponent>();
+	mainCamera->SetupAttachment(springArm, USpringArmComponent::SocketName);
+	mainCamera->bUsePawnControlRotation = false;
 }
 
 // Called when the game starts or when spawned
 void ATutorialLevel_TutorialCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	UE_LOG(LogTemp, Warning, TEXT("J"));
-
-	// Enable input for the character
-	SetActorTickEnabled(true);
-
-	// Spawn the player's camera
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (PlayerController != nullptr)
+	if (myPlayer == nullptr)
 	{
-		PlayerController->SetViewTarget(this);
+		UE_LOG(LogTemp, Warning, TEXT("NULL"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NOT NULL"));
+		// Get a reference to the current game world
+		UWorld* World = GetWorld();
+
+		FVector SpawnLocation = myPlayer->GetActorLocation() + FVector(0, 0, 100);
+		FRotator SpawnRotation = myPlayer->GetActorRotation();
+		// Set a default player
+		myPlayer = GetWorld()->GetFirstPlayerController()->GetPawn();
+		//myPlayer = World->SpawnActor<ATutorialLevel_TutorialCharacter>(ATutorialLevel_TutorialCharacter::StaticClass(), SpawnLocation, SpawnRotation);
 	}
 }
 
@@ -51,19 +59,68 @@ void ATutorialLevel_TutorialCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	/*FVector MoveDirection = FVector(GetInputAxisValue("MoveForward"), GetInputAxisValue("MoveRight"), 0.f).GetSafeNormal();
-	AddMovementInput(MoveDirection, 100 * DeltaTime);*/
-	// Move the character forward at a constant rate
-	//AddMovementInput(GetActorForwardVector(), 1.f);
+	MovementCode();
+	RotationCode();
+}
 
-	if (myPlayer != nullptr)
+void ATutorialLevel_TutorialCharacter::MovementCode()
+{
+	// Check if "W" key is pressed
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("K"));
-		FVector MovementDirection = FVector(1.0f, 0.0f, 0.0f);
-		float MovementSpeed = 100.0f;
-		FVector Movement = MovementDirection * MovementSpeed * DeltaTime;
+		// Get the character's forward vector
+		FVector ForwardVector = GetActorForwardVector();
 
-		myPlayer->AddActorWorldOffset(Movement, true);
+		// Move the character forward
+		AddMovementInput(ForwardVector, 10);
+	}
+	// Check if "A" key is pressed
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A))
+	{
+		// Get the character's right vector
+		FVector RightVector = GetActorRightVector();
+
+		// Move the character left
+		AddMovementInput(-RightVector, 10);
+	}
+	// Check if "S" key is pressed
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S))
+	{
+		// Get the character's forward vector
+		FVector ForwardVector = GetActorForwardVector();
+
+		// Move the character backwards
+		AddMovementInput(-ForwardVector, 10);
+	}
+	// Check if "D" key is pressed
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D))
+	{
+		// Get the character's right vector
+		FVector RightVector = GetActorRightVector();
+
+		// Move the character right
+		AddMovementInput(RightVector, 10);
+	}
+}
+
+void ATutorialLevel_TutorialCharacter::RotationCode()
+{
+	// Get the mouse movement
+	float DeltaX, DeltaY;
+	GetWorld()->GetFirstPlayerController()->GetInputMouseDelta(DeltaX, DeltaY);
+
+	// Calculate the rotation rate
+	float RotationRate = 0.1f;
+
+	// Add the rotation input to the controller
+	AddControllerYawInput(DeltaX * RotationRate);
+	AddControllerPitchInput(-DeltaY * RotationRate);
+
+	// Rotate the SpringArm to match the character's rotation
+	USpringArmComponent* SpringArm = FindComponentByClass<USpringArmComponent>();
+	if (SpringArm)
+	{
+		SpringArm->SetRelativeRotation(GetControlRotation() - GetActorRotation());
 	}
 }
 
