@@ -4,21 +4,39 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/HUD.h"
 #include "Components/TextBlock.h"
+#include "TimerManager.h"
+#include "Engine/World.h"
 #include "TutorialLevel_TutorialHUD.generated.h"
 
 
 /**
  * 
  */
+
 UCLASS()
 class PORTALSOFPOWER_API UTutorialLevel_TutorialHUD : public UUserWidget
 {
 	GENERATED_BODY()
 	
-protected:
+public:
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* MainText;
 
+	float DelayBetweenLetters;
+	int32 CurrentLetterIndex;
+	FTimerHandle TextTimerHandle;
+
+	void UpdateText();
+	void StartTextAnimation();
+
+	FString mainText;
+
 	void NativeConstruct() override;
+	void Dialogue_Welcome();
+
+	void SetText(FString& text);
+	FString GetText();
 };
