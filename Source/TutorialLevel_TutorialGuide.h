@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "GameFramework/HUD.h"
+#include "GameFramework/FloatingPawnMovement.h"
+#include "GameFramework/Pawn.h"
 #include "TutorialLevel_TutorialGuide.generated.h"
 
 
@@ -26,6 +28,12 @@ protected:
 	void Jump();
 	FTimerHandle TimerHandle;
 	void NextJump();
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* MeshComponent;
+
+	UPROPERTY(EditAnywhere)
+	UFloatingPawnMovement* MovementComponent;
 
 public:	
 	// Called every frame

@@ -12,6 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/HUD.h"
 #include "TutorialLevel_TutorialHUD.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ATutorialLevel_TutorialGuide::ATutorialLevel_TutorialGuide()
@@ -20,14 +21,21 @@ ATutorialLevel_TutorialGuide::ATutorialLevel_TutorialGuide()
 	PrimaryActorTick.bCanEverTick = true;
 	tutorialGuide_isJumping = false;
 	TimerHandle.Invalidate();
-	//UTutorialLevel_TutorialHUD tutorialHUD = UTutorialLevel_TutorialHUD();
+
+	// Set up the mesh component
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	RootComponent = MeshComponent;
+
+	// Set up the movement component
+	MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
+	MovementComponent->MaxSpeed = 500.f; // Set the maximum speed of the movement component
 }
 
 // Called when the game starts or when spawned
 void ATutorialLevel_TutorialGuide::BeginPlay()
 {
 	Super::BeginPlay();
-
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
 	FString welcomeMessage = "Hello";
 
@@ -38,16 +46,14 @@ void ATutorialLevel_TutorialGuide::BeginPlay()
 	{
 		TutorialHUDInstance = Cast<UTutorialLevel_TutorialHUD>(Widget);
 		//TutorialHUDInstance->AddToViewport();
-		UE_LOG(LogTemp, Warning, TEXT("IVE"));
 	}
 
 	if (TutorialHUDInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("IIVE"));
 		//TutorialHUDInstance->SetText(welcomeMessage);
 	}
 
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ATutorialLevel_TutorialGuide::NextJump, 2.0f, true);
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ATutorialLevel_TutorialGuide::NextJump, 1.0f, true);
 }
 
 // Called every frame
@@ -84,7 +90,4 @@ void ATutorialLevel_TutorialGuide::NextJump()
 {
 	// Do whatever you need to do when the timer fires...
 	Jump();
-	
-	// Stop the timer
-	//GetWorldTimerManager().ClearTimer(TimerHandle);
 }

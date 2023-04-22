@@ -2,20 +2,25 @@
 
 
 #include "TutorialLevel_TutorialCharacter.h"
+#include "GlobalVariables.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/InputSettings.h"
 #include "Engine/World.h"
+#include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
+#include "Engine/TriggerVolume.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/BoxComponent.h"
 
 bool isJumping;
-
+UBoxComponent* BoxComponent;
 // Sets default values
 ATutorialLevel_TutorialCharacter::ATutorialLevel_TutorialCharacter()
 {
@@ -34,6 +39,7 @@ ATutorialLevel_TutorialCharacter::ATutorialLevel_TutorialCharacter()
 	mainCamera = CreateDefaultSubobject<UCameraComponent>("mainCamera");
 	mainCamera->SetupAttachment(springArm, USpringArmComponent::SocketName);
 	mainCamera->bUsePawnControlRotation = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -46,7 +52,6 @@ void ATutorialLevel_TutorialCharacter::BeginPlay()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NOT NULL"));
 		// Get a reference to the current game world
 		UWorld* World = GetWorld();
 
@@ -54,7 +59,6 @@ void ATutorialLevel_TutorialCharacter::BeginPlay()
 		FRotator SpawnRotation = myPlayer->GetActorRotation();
 		// Set a default player
 		myPlayer = GetWorld()->GetFirstPlayerController()->GetPawn();
-		
 	}
 }
 
@@ -63,9 +67,18 @@ void ATutorialLevel_TutorialCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	MovementCode();
 	RotationCode();
-	Jump();
+
+	if (GlobalVariables().GetInstance().GetTutorialInitMove())
+	{
+		MovementCode();
+		Jump();
+	}
+
+	if (GetCapsuleComponent()->IsOverlappingComponent(BoxComponent))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Capsule is overlapping with box!"));
+	}
 }
 
 void ATutorialLevel_TutorialCharacter::MovementCode()
@@ -134,22 +147,11 @@ void ATutorialLevel_TutorialCharacter::Jump()
 	// Check if the character can jump
 	if (!isJumping && GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::SpaceBar) && GetCharacterMovement()->IsMovingOnGround())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("JUMP"));
 		// Set the jumping flag
 		isJumping = true;
-
-		// Set the jump velocity
-		//FVector JumpVelocity = FVector(0.f, 0.f, 20.f);
-		//GetCharacterMovement()->Velocity += JumpVelocity;
 		
 		FVector JumpVelocity = FVector(0.f, 0.f, 375.f);
 		LaunchCharacter(JumpVelocity, true, true);
-
-		//// Notify the server that the character has jumped
-		//if (GetLocalRole() == ROLE_Authority)
-		//{
-		//	OnJumped();
-		//}
 	}
 	if (GetCharacterMovement()->IsMovingOnGround())
 	{
