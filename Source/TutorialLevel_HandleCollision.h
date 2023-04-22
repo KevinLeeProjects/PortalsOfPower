@@ -22,5 +22,5 @@ public:
 	void SetTutorialHUD(UTutorialLevel_TutorialHUD* Widget);
 
 private: 
-	UTutorialLevel_TutorialHUD* MyUserWidgetReference;
+	UTutorialLevel_TutorialHUD* tutorialHUD;
 };

@@ -25,21 +25,18 @@ TutorialLevel_HandleCollision& TutorialLevel_HandleCollision::GetInstance()
 
 void TutorialLevel_HandleCollision::SetTutorialHUD(UTutorialLevel_TutorialHUD* Widget)
 {
-	MyUserWidgetReference = Widget;
+	tutorialHUD = Widget;
 }
 
 void TutorialLevel_HandleCollision::collisionResponse(const FString& colliderName)
 {
 	if (colliderName == "SpawnRoomTrigger")
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Sets TEXT"));
 		tutorialInitMove = false;
 		GlobalVariables().GetInstance().SetTutorialInitMove(tutorialInitMove);
-		//UTutorialLevel_TutorialHUD* MyWidget = Cast<UTutorialLevel_TutorialHUD>(MyUserWidgetReference);
-		if (MyUserWidgetReference)
+		if (tutorialHUD)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Set TEXT"));
-			MyUserWidgetReference->SetText("Hello");
+			tutorialHUD->SetText("Hello");
 		}
 	}
 }
