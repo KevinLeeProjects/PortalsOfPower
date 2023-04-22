@@ -32,11 +32,13 @@ void TutorialLevel_HandleCollision::collisionResponse(const FString& colliderNam
 {
 	if (colliderName == "SpawnRoomTrigger")
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Sets TEXT"));
 		tutorialInitMove = false;
 		GlobalVariables().GetInstance().SetTutorialInitMove(tutorialInitMove);
 		//UTutorialLevel_TutorialHUD* MyWidget = Cast<UTutorialLevel_TutorialHUD>(MyUserWidgetReference);
 		if (MyUserWidgetReference)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Set TEXT"));
 			MyUserWidgetReference->SetText("Hello");
 		}
 	}

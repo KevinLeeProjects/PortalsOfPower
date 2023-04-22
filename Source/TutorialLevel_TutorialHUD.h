@@ -37,6 +37,8 @@ public:
 	void NativeConstruct() override;
 	void Dialogue_Welcome();
 
-	void SetText(FString& text);
+	void SetText(const FString& text);
 	FString GetText();
+
+	int whichDialogueCounter;
 };

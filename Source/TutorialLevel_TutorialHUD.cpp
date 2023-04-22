@@ -5,14 +5,17 @@
 #include "GlobalVariables.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
+#include "TutorialLevel_HandleCollision.h"
 #include "Components/TextBlock.h"
 
 void UTutorialLevel_TutorialHUD::NativeConstruct()
 {
+    whichDialogueCounter = 0;
     DelayBetweenLetters = 0.1f; // The delay between adding each letter (in seconds)
     CurrentLetterIndex = 0; // The index of the current letter being displayed
     //MainText->SetText(FText::FromString(TEXT(": Welcome to Portals of Power!")));
-    FString welcomeMessage = ": Welcome to Portals of Power!";
+    TutorialLevel_HandleCollision().GetInstance().SetTutorialHUD(this);
+    FString welcomeMessage = ": Welcome to Portals of Power! Use WASD to move around!";
     SetText(welcomeMessage);
 }
 
@@ -23,10 +26,10 @@ void UTutorialLevel_TutorialHUD::Dialogue_Welcome()
     //UE_LOG(LogTemp, Warning, TEXT("Welcome"));
 }
 
-void UTutorialLevel_TutorialHUD::SetText(FString& text)
+void UTutorialLevel_TutorialHUD::SetText(const FString& text)
 {
     mainText = *text;
-    UpdateText();
+    StartTextAnimation();
 }
 
 FString UTutorialLevel_TutorialHUD::GetText()
@@ -43,6 +46,15 @@ void UTutorialLevel_TutorialHUD::UpdateText()
     if (CurrentLetterIndex < mainText.Len()) // If there are more letters to display
     {
         GetWorld()->GetTimerManager().SetTimer(TextTimerHandle, this, &UTutorialLevel_TutorialHUD::UpdateText, DelayBetweenLetters, false); // Start the timer to update the text again
+    }
+    else
+    {
+        if (whichDialogueCounter == 0)
+        {
+            bool move = true;
+            GlobalVariables().GetInstance().SetTutorialInitMove(move);
+            whichDialogueCounter++;
+        }
     }
 }
 
