@@ -39,6 +39,4 @@ public:
 
 	void SetText(const FString& text);
 	FString GetText();
-
-	int whichDialogueCounter;
 };

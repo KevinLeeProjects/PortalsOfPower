@@ -10,6 +10,7 @@
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "Blueprint/UserWidget.h"
+#include "TutorialLevel_HandleCollision.h"
 #include "GameFramework/HUD.h"
 #include "TutorialLevel_TutorialHUD.h"
 #include "Components/CapsuleComponent.h"
@@ -29,6 +30,8 @@ ATutorialLevel_TutorialGuide::ATutorialLevel_TutorialGuide()
 	// Set up the movement component
 	MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
 	MovementComponent->MaxSpeed = 500.f; // Set the maximum speed of the movement component
+
+	TutorialLevel_HandleCollision().GetInstance().SetGuide(this);
 }
 
 // Called when the game starts or when spawned
@@ -90,4 +93,36 @@ void ATutorialLevel_TutorialGuide::NextJump()
 {
 	// Do whatever you need to do when the timer fires...
 	Jump();
+}
+
+void ATutorialLevel_TutorialGuide::Move(FVector direction, float distance)
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+	// Divide the total distance into smaller steps
+	float StepSize = 1.0f; // Set the size of each step
+	int NumSteps = FMath::RoundToInt(distance / StepSize); // Calculate the number of steps based on the total distance and the step size
+
+	// Calculate the total time it should take to complete the movement
+	float MovementTime = NumSteps * 0.0001f; // Set the time for each step to 0.1 seconds
+	// Start a timer that will update the actor's location every 0.1 seconds
+	FTimerHandle movementTimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(movementTimerHandle, [=]() mutable
+		{
+			static int Step = 0; // Keep track of the current step
+			if (Step < NumSteps)
+			{
+				FVector CurrentLocation = GetActorLocation();
+				FVector StepVector = direction * StepSize;
+				FVector NewLocation = CurrentLocation + StepVector;
+				SetActorLocation(NewLocation);
+				Step++;
+			}
+			else
+			{
+				// Cancel the timer once all steps have been taken
+				GetWorld()->GetTimerManager().ClearTimer(movementTimerHandle);
+				//Step = 0;
+			}
+		}, MovementTime, true);
 }

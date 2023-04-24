@@ -1,8 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GlobalVariables.h"
+
 #include "TutorialLevel_TutorialHUD.h"
+#include "GlobalVariables.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Engine/World.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,7 +31,12 @@ void TutorialLevel_HandleCollision::SetTutorialHUD(UTutorialLevel_TutorialHUD* W
 	tutorialHUD = Widget;
 }
 
-void TutorialLevel_HandleCollision::collisionResponse(const FString& colliderName)
+void TutorialLevel_HandleCollision::SetGuide(ATutorialLevel_TutorialGuide* tutorialGuide)
+{
+	guide = tutorialGuide;
+}
+
+void TutorialLevel_HandleCollision::collisionResponse(const FString& colliderName, AActor* collider)
 {
 	if (colliderName == "SpawnRoomTrigger")
 	{
@@ -36,7 +44,15 @@ void TutorialLevel_HandleCollision::collisionResponse(const FString& colliderNam
 		GlobalVariables().GetInstance().SetTutorialInitMove(tutorialInitMove);
 		if (tutorialHUD)
 		{
-			tutorialHUD->SetText("Hello");
+			UBoxComponent* Collider = collider->FindComponentByClass<UBoxComponent>();
+			// Disable the collider component
+			if (Collider)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("HER"));
+				Collider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				guide->Move(FVector(1.0f, 0.0f, 0.0f), 200.0f);
+				tutorialHUD->SetText("Hello");
+			}
 		}
 	}
 }

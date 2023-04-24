@@ -74,11 +74,6 @@ void ATutorialLevel_TutorialCharacter::Tick(float DeltaTime)
 		MovementCode();
 		Jump();
 	}
-
-	if (GetCapsuleComponent()->IsOverlappingComponent(BoxComponent))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Capsule is overlapping with box!"));
-	}
 }
 
 void ATutorialLevel_TutorialCharacter::MovementCode()

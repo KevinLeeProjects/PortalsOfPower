@@ -10,12 +10,11 @@
 
 void UTutorialLevel_TutorialHUD::NativeConstruct()
 {
-    whichDialogueCounter = 0;
-    DelayBetweenLetters = 0.1f; // The delay between adding each letter (in seconds)
+    DelayBetweenLetters = 0.05f; // The delay between adding each letter (in seconds)
     CurrentLetterIndex = 0; // The index of the current letter being displayed
     //MainText->SetText(FText::FromString(TEXT(": Welcome to Portals of Power!")));
     TutorialLevel_HandleCollision().GetInstance().SetTutorialHUD(this);
-    FString welcomeMessage = ": Welcome to Portals of Power! Use WASD to move around!";
+    FString welcomeMessage = ": Welcome to Portals of Power! Use WASD to move around and spacebar to jump!";
     SetText(welcomeMessage);
 }
 
@@ -49,12 +48,8 @@ void UTutorialLevel_TutorialHUD::UpdateText()
     }
     else
     {
-        if (whichDialogueCounter == 0)
-        {
             bool move = true;
             GlobalVariables().GetInstance().SetTutorialInitMove(move);
-            whichDialogueCounter++;
-        }
     }
 }
 
