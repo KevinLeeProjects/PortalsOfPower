@@ -10,10 +10,12 @@
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "Blueprint/UserWidget.h"
+#include "GlobalVariables.h"
 #include "TutorialLevel_HandleCollision.h"
 #include "GameFramework/HUD.h"
 #include "TutorialLevel_TutorialHUD.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ATutorialLevel_TutorialGuide::ATutorialLevel_TutorialGuide()
@@ -95,7 +97,7 @@ void ATutorialLevel_TutorialGuide::NextJump()
 	Jump();
 }
 
-void ATutorialLevel_TutorialGuide::Move(FVector direction, float distance)
+void ATutorialLevel_TutorialGuide::Move(FVector direction, float distance, float sequence)
 {
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 	// Divide the total distance into smaller steps
@@ -103,10 +105,10 @@ void ATutorialLevel_TutorialGuide::Move(FVector direction, float distance)
 	int NumSteps = FMath::RoundToInt(distance / StepSize); // Calculate the number of steps based on the total distance and the step size
 
 	// Calculate the total time it should take to complete the movement
-	float MovementTime = NumSteps * 0.0001f; // Set the time for each step to 0.1 seconds
+	float MovementTime = NumSteps * 0.000003f; // Set the time for each step to 0.1 seconds
 	// Start a timer that will update the actor's location every 0.1 seconds
-	FTimerHandle movementTimerHandle;
-
+	
+	
 	GetWorld()->GetTimerManager().SetTimer(movementTimerHandle, [=]() mutable
 		{
 			static int Step = 0; // Keep track of the current step
@@ -116,13 +118,25 @@ void ATutorialLevel_TutorialGuide::Move(FVector direction, float distance)
 				FVector StepVector = direction * StepSize;
 				FVector NewLocation = CurrentLocation + StepVector;
 				SetActorLocation(NewLocation);
+				bool setTutorialInitMove = false;
+				GlobalVariables().GetInstance().SetTutorialInitMove(setTutorialInitMove);
 				Step++;
 			}
 			else
 			{
 				// Cancel the timer once all steps have been taken
+				bool setTutorialInitMove = true;
 				GetWorld()->GetTimerManager().ClearTimer(movementTimerHandle);
-				//Step = 0;
+				GlobalVariables().GetInstance().SetTutorialInitMove(setTutorialInitMove);
+				if (sequence == 0)
+				{
+					AActor* wizard = GetWorld()->SpawnActor<AActor>(wizardBP, wizardSpawnPoint->GetActorLocation() + GetActorForwardVector() * 110.0f, GetActorRotation() + FRotator(0.0f, 90.0f, 0.0f));
+					/*UBoxComponent* wizardCollider = wizard->FindComponentByClass<UBoxComponent>();
+					FVector wizardScale(1.0f, 1.0f, 1.0f);
+					wizardCollider->SetBoxExtent(wizardScale);*/
+				}
+				Step = 0;
 			}
 		}, MovementTime, true);
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ATutorialLevel_TutorialGuide::NextJump, 1.0f, true);
 }

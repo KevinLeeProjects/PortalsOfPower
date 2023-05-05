@@ -57,6 +57,7 @@ protected:
 
 	void OpenGameClient();
 
+
 	UFUNCTION()
 	void LoginButtonOnClicked();
 

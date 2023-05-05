@@ -14,7 +14,7 @@ void UTutorialLevel_TutorialHUD::NativeConstruct()
     CurrentLetterIndex = 0; // The index of the current letter being displayed
     //MainText->SetText(FText::FromString(TEXT(": Welcome to Portals of Power!")));
     TutorialLevel_HandleCollision().GetInstance().SetTutorialHUD(this);
-    FString welcomeMessage = ": Welcome to Portals of Power! Use WASD to move around and spacebar to jump!";
+    FString welcomeMessage = ": Welcome to Portals of Power! Use WASD to move around the room!";
     SetText(welcomeMessage);
 }
 

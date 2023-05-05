@@ -17,6 +17,8 @@
 #include "GameFramework/Character.h"
 #include "Engine/TriggerVolume.h"
 #include "Components/PrimitiveComponent.h"
+#include "Math/UnrealMath.h"
+#include "TutorialLevel_Fork.h"
 #include "Components/BoxComponent.h"
 
 bool isJumping;
@@ -40,6 +42,13 @@ ATutorialLevel_TutorialCharacter::ATutorialLevel_TutorialCharacter()
 	mainCamera->SetupAttachment(springArm, USpringArmComponent::SocketName);
 	mainCamera->bUsePawnControlRotation = false;
 
+	attack = 5;
+	firingFrequency = 0.6;
+	pace = 5;
+	resilience = 5;
+	health = 100;
+	healthRegen = 4;
+	luck = FMath::RandRange(1, 5);
 }
 
 // Called when the game starts or when spawned
@@ -57,6 +66,8 @@ void ATutorialLevel_TutorialCharacter::BeginPlay()
 
 		FVector SpawnLocation = myPlayer->GetActorLocation() + FVector(0, 0, 100);
 		FRotator SpawnRotation = myPlayer->GetActorRotation();
+
+		canBasickAttack = false;
 		// Set a default player
 		myPlayer = GetWorld()->GetFirstPlayerController()->GetPawn();
 	}
@@ -73,6 +84,7 @@ void ATutorialLevel_TutorialCharacter::Tick(float DeltaTime)
 	{
 		MovementCode();
 		Jump();
+		BasicAttack();
 	}
 }
 
@@ -134,6 +146,33 @@ void ATutorialLevel_TutorialCharacter::RotationCode()
 	if (SpringArm)
 	{
 		SpringArm->SetRelativeRotation(GetControlRotation() - GetActorRotation());
+	}
+}
+
+void ATutorialLevel_TutorialCharacter::BasicAttack()
+{
+	// Check if the left mouse button is pressed and not on cooldown
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::LeftMouseButton) && !canBasickAttack)
+	{
+		// Spawn the projectile
+		/*FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 100.0f;
+		FRotator SpawnRotation = GetActorRotation();*/
+		//ATutorialLevel_Fork* fork = GetWorld()->SpawnActor<ATutorialLevel_Fork>(forkBP, SpawnLocation, SpawnRotation);
+		AActor* fork = GetWorld()->SpawnActor<AActor>(forkBP, forkSpawnPoint->GetActorLocation() + GetActorForwardVector() * 110.0f, GetActorRotation());
+		FVector Scale(0.09f, 0.09f, 0.09f);
+		fork->SetActorScale3D(Scale);
+		// If the projectile is valid, set its owner
+		if (fork)
+		{
+			fork->SetOwner(this);
+		}
+		// Set the flag to true to start the cooldown
+		canBasickAttack = true;
+
+		// Delay for firingFrequency seconds before resetting the flag
+		GetWorld()->GetTimerManager().SetTimer(LeftMouseButtonCooldownTimer, [this]() {
+			canBasickAttack = false;
+			}, firingFrequency, false);
 	}
 }
 

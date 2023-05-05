@@ -22,11 +22,12 @@ class PORTALSOFPOWER_API GlobalVariables
 {
 public:
 
-	//variables
+	//Login variables
 	FString username;
 	FString API;
+	FString tutorialComplete;
 
-	//functions
+	//Login functions
 	GlobalVariables();
 	~GlobalVariables();
 
@@ -38,5 +39,17 @@ public:
 	void SetUsername(FString& name);
 	FString GetUsername();
 
+	void SetTutorialComplete(FString& tComplete);
+	FString GetTutorialComplete();
+
 	FString GetDBURL();
+
+
+
+	//Tutorial variables
+	bool tutorialInitMove;
+
+	//Tutorial functions
+	void SetTutorialInitMove(bool& move);
+	bool GetTutorialInitMove();
 };

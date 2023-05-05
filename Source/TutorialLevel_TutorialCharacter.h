@@ -26,9 +26,13 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
     AActor* myPlayer; // Player
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	AActor* forkSpawnPoint; 
+
 	void MovementCode();
 	void RotationCode();
 	void Jump();
+	void BasicAttack();
 
 public:	
 	// Called every frame
@@ -37,10 +41,20 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY()
+	FTimerHandle LeftMouseButtonCooldownTimer;
+
+	bool canBasickAttack;
+
+	UPROPERTY(EditAnywhere, Category = "SpawnFork")
+	UClass* forkBP;
+
 private:
-    // Input functions
-    void MoveForward(float Value);
-    void MoveRight(float Value);
-    void LookUp(float Value);
-    void LookRight(float Value);
+	float attack;
+	float firingFrequency;
+	float pace;
+	float resilience;
+	float health;
+	float healthRegen;
+	float luck;
 };

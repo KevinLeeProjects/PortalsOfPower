@@ -2,6 +2,7 @@
 
 #include "GlobalVariables.h"
 #include "Kismet/GameplayStatics.h"
+#include "TutorialLevel_TutorialHUD.h"
 
 //HTTP and JSON
 #include "HttpModule.h"
@@ -19,6 +20,7 @@ FString APIKey;
 
 GlobalVariables::GlobalVariables()
 {
+	tutorialInitMove = false;
 }
 
 GlobalVariables::~GlobalVariables()
@@ -32,6 +34,7 @@ GlobalVariables& GlobalVariables::GetInstance()
 	return instance;
 }
 
+//Login
 void GlobalVariables::SetAPI(FString& api)
 {
 	API = *api;
@@ -52,7 +55,31 @@ FString GlobalVariables::GetUsername()
 	return username;
 }
 
+void GlobalVariables::SetTutorialComplete(FString& tComplete)
+{
+	tutorialComplete = *tComplete;
+}
+
+FString GlobalVariables::GetTutorialComplete()
+{
+	return tutorialComplete;
+}
+
 FString GlobalVariables::GetDBURL()
 {
 	return "https://portals-of-power-default-rtdb.firebaseio.com/";
+}
+
+
+
+
+//Tutorial
+void GlobalVariables::SetTutorialInitMove(bool& move)
+{
+	tutorialInitMove = move;
+}
+
+bool GlobalVariables::GetTutorialInitMove()
+{
+	return tutorialInitMove;
 }

@@ -185,11 +185,38 @@ void ULoginScreen_LoginButton::OpenGameClient()
 {
 	UWorld* world = GetWorld();
 
-	if (world)
-	{
-		FString gameClient = "GameClient";
-		UGameplayStatics::OpenLevel(world, FName(*gameClient));
-	}
+	//URL for Database
+	FString databaseTutorialURL = TEXT("https://portals-of-power-default-rtdb.firebaseio.com/players/" + LOGIN_USERNAME.ToLower() + "/TutorialComplete.json");
+
+	// Create the HTTP request
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+	HttpRequest->SetVerb("GET");
+	HttpRequest->SetURL(databaseTutorialURL);
+
+	// Set the response callback
+	HttpRequest->OnProcessRequestComplete().BindLambda([world](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessful)
+		{
+			FString toTutorial = Response->GetContentAsString();
+			if (world)
+			{
+				if (toTutorial == "true")
+				{
+					FString gameClient = "GameClient";
+					UGameplayStatics::OpenLevel(world, FName(*gameClient));
+				}
+				else
+				{
+					FString tutorialLevel = "TutorialLevel";
+					UGameplayStatics::OpenLevel(world, FName(*tutorialLevel));
+				}
+			}
+		});
+
+
+	// Send the HTTP request
+	HttpRequest->ProcessRequest();
+
+	
 }
 
 void ULoginScreen_LoginButton::SignUpButtonOnClicked()

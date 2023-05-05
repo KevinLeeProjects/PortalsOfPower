@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "TutorialLevel_HandleCollision.h"
 #include "TutorialLevel_TutorialHUD.h"
 #include "GlobalVariables.h"
 #include "GameFramework/PlayerController.h"
@@ -9,7 +9,7 @@
 #include "Engine/World.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
-#include "TutorialLevel_HandleCollision.h"
+
 
 TutorialLevel_HandleCollision::TutorialLevel_HandleCollision()
 {
@@ -48,10 +48,9 @@ void TutorialLevel_HandleCollision::collisionResponse(const FString& colliderNam
 			// Disable the collider component
 			if (Collider)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("HER"));
 				Collider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-				guide->Move(FVector(1.0f, 0.0f, 0.0f), 200.0f);
-				tutorialHUD->SetText("Hello");
+				guide->Move(FVector(1.0f, 0.0f, 0.0f), 1800.0f, 0);
+				tutorialHUD->SetText("Hello! My name is Jurgen and I'll be your guide. Follow me!");
 			}
 		}
 	}

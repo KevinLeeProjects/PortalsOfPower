@@ -29,6 +29,8 @@ protected:
 	FTimerHandle TimerHandle;
 	void NextJump();
 
+	FTimerHandle movementTimerHandle;
+
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshComponent;
 
@@ -42,7 +44,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void Move(FVector direction, float distance);
+	void Move(FVector direction, float distance, float sequence);
+
+	UPROPERTY(EditAnywhere, Category = "SpawnWizard")
+	UClass* wizardBP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnWizard")
+	AActor* wizardSpawnPoint;
 
 	
 };
