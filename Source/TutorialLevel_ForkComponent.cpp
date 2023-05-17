@@ -2,6 +2,7 @@
 
 #include "Engine/World.h"
 #include "Components/BoxComponent.h"
+#include "TutorialLevel_HandleCollision.h"
 #include "TutorialLevel_ForkComponent.h"
 
 // Sets default values for this component's properties
@@ -49,14 +50,25 @@ void UTutorialLevel_ForkComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	FVector ForwardVector = GetOwner()->GetActorForwardVector();
 	FVector NewLocation = CurrentLocation + ForwardVector * speed * DeltaTime;
 	GetOwner()->SetActorLocation(NewLocation);
+
+	
 }
 
 void UTutorialLevel_ForkComponent::OnComponentHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
-	//if (OtherActor->GetActorLabel() != "TutorialLevel_TutorialCharacter5" && OtherActor->GetActorLabel() != "TutorialLevel_TutorialGuide2")
-	//{
+	if (OtherActor->GetActorLabel() != "TutorialLevel_TutorialCharacter5")
+	{
 		UE_LOG(LogTemp, Warning, TEXT("HI: %s"), *OtherActor->GetActorLabel());
-		//canDestroy = true;
-	//}
+		if (OtherActor->GetActorLabel() == "enemy_wizard0")
+		{
+			TutorialLevel_HandleCollision().GetInstance().ForkDamage(OtherActor, this);
+		}
+	}
+}
+
+void UTutorialLevel_ForkComponent::DestroySelf()
+{
+	canDestroy = true;
+	//GetOwner()->Destroy();
 }
 

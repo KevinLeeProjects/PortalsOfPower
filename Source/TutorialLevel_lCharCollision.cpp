@@ -49,5 +49,5 @@ void UTutorialLevel_lCharCollision::TickComponent(float DeltaTime, ELevelTick Ti
 void UTutorialLevel_lCharCollision::OnComponentHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetActorLabel());
-	TutorialLevel_HandleCollision().GetInstance().collisionResponse(OtherActor->GetActorLabel(), OtherActor);
+	TutorialLevel_HandleCollision().GetInstance().CollisionResponse(OtherActor->GetActorLabel(), OtherActor);
 }

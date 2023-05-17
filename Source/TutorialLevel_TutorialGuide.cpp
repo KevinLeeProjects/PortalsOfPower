@@ -125,15 +125,16 @@ void ATutorialLevel_TutorialGuide::Move(FVector direction, float distance, float
 			else
 			{
 				// Cancel the timer once all steps have been taken
-				bool setTutorialInitMove = true;
+				
 				GetWorld()->GetTimerManager().ClearTimer(movementTimerHandle);
-				GlobalVariables().GetInstance().SetTutorialInitMove(setTutorialInitMove);
+				
 				if (sequence == 0)
 				{
 					AActor* wizard = GetWorld()->SpawnActor<AActor>(wizardBP, wizardSpawnPoint->GetActorLocation() + GetActorForwardVector() * 110.0f, GetActorRotation() + FRotator(0.0f, 90.0f, 0.0f));
 					/*UBoxComponent* wizardCollider = wizard->FindComponentByClass<UBoxComponent>();
 					FVector wizardScale(1.0f, 1.0f, 1.0f);
 					wizardCollider->SetBoxExtent(wizardScale);*/
+					TutorialLevel_HandleCollision().GetInstance().HandleWizardInteraction();
 				}
 				Step = 0;
 			}

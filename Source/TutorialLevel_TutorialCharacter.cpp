@@ -84,7 +84,10 @@ void ATutorialLevel_TutorialCharacter::Tick(float DeltaTime)
 	{
 		MovementCode();
 		Jump();
-		BasicAttack();
+		if (GlobalVariables().GetInstance().GetCanAttack())
+		{
+			BasicAttack();
+		}
 	}
 }
 
@@ -143,10 +146,11 @@ void ATutorialLevel_TutorialCharacter::RotationCode()
 
 	// Rotate the SpringArm to match the character's rotation
 	USpringArmComponent* SpringArm = FindComponentByClass<USpringArmComponent>();
-	if (SpringArm)
-	{
-		SpringArm->SetRelativeRotation(GetControlRotation() - GetActorRotation());
-	}
+	// Calculate the desired rotation of the SpringArm
+	FRotator DesiredRotation = GetControlRotation() - GetActorRotation();
+	
+	// Apply the restricted rotation to the SpringArm
+	SpringArm->SetRelativeRotation(DesiredRotation);
 }
 
 void ATutorialLevel_TutorialCharacter::BasicAttack()

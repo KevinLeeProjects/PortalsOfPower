@@ -4,34 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "TutorialLevel_ForkComponent.generated.h"
+#include "MagicMacaroni_Tutorial.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PORTALSOFPOWER_API UTutorialLevel_ForkComponent : public UActorComponent
+class PORTALSOFPOWER_API UMagicMacaroni_Tutorial : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UTutorialLevel_ForkComponent();
+	UMagicMacaroni_Tutorial();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	float lifeTime;
-	float speed;
-	float canDestroy;
-
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit);
-
-	
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void DestroySelf();
+		
 };

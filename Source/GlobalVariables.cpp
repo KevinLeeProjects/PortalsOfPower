@@ -21,6 +21,9 @@ FString APIKey;
 GlobalVariables::GlobalVariables()
 {
 	tutorialInitMove = false;
+	canAttack = false;
+	checkCanAttack = false;
+	macaroniExplanation = false;
 }
 
 GlobalVariables::~GlobalVariables()
@@ -82,4 +85,34 @@ void GlobalVariables::SetTutorialInitMove(bool& move)
 bool GlobalVariables::GetTutorialInitMove()
 {
 	return tutorialInitMove;
+}
+
+void GlobalVariables::SetCanAttack(bool& attack)
+{
+	canAttack = attack;
+}
+
+bool GlobalVariables::GetCanAttack()
+{
+	return canAttack;
+}
+
+void GlobalVariables::SetCheckCanAttack(bool& check)
+{
+	checkCanAttack = check;
+}
+
+bool GlobalVariables::GetCheckCanAttack()
+{
+	return checkCanAttack;
+}
+
+void GlobalVariables::SetMacaroniExplanation(bool& macEx)
+{
+	macaroniExplanation = macEx;
+}
+
+bool GlobalVariables::GetMacaroniExplanation()
+{
+	return macaroniExplanation;
 }

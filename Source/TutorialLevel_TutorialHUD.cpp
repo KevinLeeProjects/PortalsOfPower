@@ -3,9 +3,9 @@
 
 #include "TutorialLevel_TutorialHUD.h"
 #include "GlobalVariables.h"
+#include "TutorialLevel_HandleCollision.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
-#include "TutorialLevel_HandleCollision.h"
 #include "Components/TextBlock.h"
 
 void UTutorialLevel_TutorialHUD::NativeConstruct()
@@ -13,6 +13,8 @@ void UTutorialLevel_TutorialHUD::NativeConstruct()
     DelayBetweenLetters = 0.05f; // The delay between adding each letter (in seconds)
     CurrentLetterIndex = 0; // The index of the current letter being displayed
     //MainText->SetText(FText::FromString(TEXT(": Welcome to Portals of Power!")));
+    bool macExplain = false;
+    GlobalVariables().GetInstance().SetMacaroniExplanation(macExplain);
     TutorialLevel_HandleCollision().GetInstance().SetTutorialHUD(this);
     FString welcomeMessage = ": Welcome to Portals of Power! Use WASD to move around the room!";
     SetText(welcomeMessage);
@@ -45,11 +47,28 @@ void UTutorialLevel_TutorialHUD::UpdateText()
     if (CurrentLetterIndex < mainText.Len()) // If there are more letters to display
     {
         GetWorld()->GetTimerManager().SetTimer(TextTimerHandle, this, &UTutorialLevel_TutorialHUD::UpdateText, DelayBetweenLetters, false); // Start the timer to update the text again
+        bool move = false;
+        GlobalVariables().GetInstance().SetTutorialInitMove(move);
     }
     else
     {
             bool move = true;
             GlobalVariables().GetInstance().SetTutorialInitMove(move);
+
+            if (GlobalVariables().GetInstance().GetCheckCanAttack())
+            {
+                bool canAttack = true;
+                GlobalVariables().GetInstance().SetCanAttack(canAttack);
+            }
+
+            if (GlobalVariables().GetInstance().GetMacaroniExplanation())
+            {
+                move = false;
+                GlobalVariables().GetInstance().SetTutorialInitMove(move);
+                SetText("There will be many monsters in your journey ahead. Every monster has a chance to drop macaroni of varying color depending on rarity.");
+                bool macExplain = false;
+                GlobalVariables().GetInstance().SetMacaroniExplanation(macExplain);
+            }
     }
 }
 

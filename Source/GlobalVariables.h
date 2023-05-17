@@ -20,17 +20,26 @@
  */
 class PORTALSOFPOWER_API GlobalVariables
 {
-public:
 
+protected: 
 	//Login variables
 	FString username;
 	FString API;
 	FString tutorialComplete;
+	
 
-	//Login functions
+	//Tutorial variables
+	bool tutorialInitMove;
+	bool canAttack;
+	bool checkCanAttack;
+	bool macaroniExplanation;
+
+public:
+	
 	GlobalVariables();
 	~GlobalVariables();
 
+	//Login functions
 	static GlobalVariables& GetInstance();
 
 	void SetAPI(FString& api);
@@ -46,10 +55,18 @@ public:
 
 
 
-	//Tutorial variables
-	bool tutorialInitMove;
+	
 
 	//Tutorial functions
 	void SetTutorialInitMove(bool& move);
 	bool GetTutorialInitMove();
+
+	void SetCanAttack(bool& attack);
+	bool GetCanAttack();
+
+	void SetCheckCanAttack(bool& check);
+	bool GetCheckCanAttack();
+
+	void SetMacaroniExplanation(bool& macEx);
+	bool GetMacaroniExplanation();
 };
