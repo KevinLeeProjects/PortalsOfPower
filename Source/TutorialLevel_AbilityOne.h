@@ -4,31 +4,38 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "LowLevel_Wizard.generated.h"
+#include "TutorialLevel_AbilityOne.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PORTALSOFPOWER_API ULowLevel_Wizard : public UActorComponent
+class PORTALSOFPOWER_API UTutorialLevel_AbilityOne : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	ULowLevel_Wizard();
+	UTutorialLevel_AbilityOne();
+
+	void SetAbilityHidden();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void FacePlayer();
+	UFUNCTION()
+	void OnComponentHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit);
+
+	FTimerHandle abilityOneTimerHandle;
+	FTimerHandle abilityOneCooldownHandle;
+	float tempPace;
+	float pace;
+
+	float abilityLifetime;
+	float cooldown;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	//UPROPERTY(EditAnywhere, Category = "SpawnMacaroni")
-	//UClass* macaroniBP;
-
-	void SpawnMacaroni();
-
+		
 };

@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GlobalVariables.h"
 #include "TutorialLevel_HandleCollision.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 
 // Sets default values for this component's properties
@@ -33,7 +34,6 @@ void UTutorialLevel_lCharCollision::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
 }
 
 
@@ -49,5 +49,13 @@ void UTutorialLevel_lCharCollision::TickComponent(float DeltaTime, ELevelTick Ti
 void UTutorialLevel_lCharCollision::OnComponentHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetActorLabel());
-	TutorialLevel_HandleCollision().GetInstance().CollisionResponse(OtherActor->GetActorLabel(), OtherActor);
+	if (OtherActor->ActorHasTag(TEXT("SpawnRoomTrigger")))
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("HERE"));
+		TutorialLevel_HandleCollision().GetInstance().SpawnRoomTrigger(OtherActor);
+	}
+	else if (OtherActor->ActorHasTag("AttackTutorialTrigger"))
+	{
+		TutorialLevel_HandleCollision().GetInstance().AttackTutorialTrigger(OtherActor);
+	}
 }

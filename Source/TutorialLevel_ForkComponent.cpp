@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "TutorialLevel_ForkComponent.h"
 #include "Engine/World.h"
 #include "Components/BoxComponent.h"
+#include "LowLevel_WizardAttack.h"
 #include "TutorialLevel_HandleCollision.h"
-#include "TutorialLevel_ForkComponent.h"
+
 
 // Sets default values for this component's properties
 UTutorialLevel_ForkComponent::UTutorialLevel_ForkComponent()
@@ -56,12 +58,19 @@ void UTutorialLevel_ForkComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 void UTutorialLevel_ForkComponent::OnComponentHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
-	if (OtherActor->GetActorLabel() != "TutorialLevel_TutorialCharacter5")
+	//if (OtherActor->GetActorLabel() != "TutorialLevel_TutorialCharacter5")
+	if(!OtherActor->ActorHasTag("Player"))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HI: %s"), *OtherActor->GetActorLabel());
-		if (OtherActor->GetActorLabel() == "enemy_wizard0")
+		//UE_LOG(LogTemp, Warning, TEXT("HI: %s"), *OtherActor->GetActorLabel());
+		if (OtherActor->ActorHasTag("LowLevel_Wizard"))
 		{
 			TutorialLevel_HandleCollision().GetInstance().ForkDamage(OtherActor, this);
+		}
+		else if (OtherActor->ActorHasTag("Enemy"))
+		{
+			/*ULowLevel_WizardAttack* wizard = OtherActor->FindComponentByClass<ULowLevel_WizardAttack>();
+			GetOwner(
+			wizard->TakeDamage(10.0f);*/
 		}
 	}
 }

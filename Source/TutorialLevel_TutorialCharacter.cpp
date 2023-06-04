@@ -2,24 +2,36 @@
 
 
 #include "TutorialLevel_TutorialCharacter.h"
+
+//Globals
 #include "GlobalVariables.h"
+#include "TutorialLevel_HandleCollision.h"
+
+//Player controller
 #include "GameFramework/Controller.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
 #include "GameFramework/InputSettings.h"
-#include "Engine/World.h"
-#include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
+
+//Camera
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+
+//World, components, UE5
+#include "Engine/World.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/TriggerVolume.h"
 #include "Components/PrimitiveComponent.h"
 #include "Math/UnrealMath.h"
-#include "TutorialLevel_Fork.h"
 #include "Components/BoxComponent.h"
+
+//Fork
+#include "TutorialLevel_Fork.h"
+
 
 bool isJumping;
 UBoxComponent* BoxComponent;
@@ -38,23 +50,33 @@ ATutorialLevel_TutorialCharacter::ATutorialLevel_TutorialCharacter()
 	springArm->TargetArmLength = 300.f;
 	springArm->bUsePawnControlRotation = true;
 
+	//GetSocketLocation(SpringArmComp->SocketName)
+
 	mainCamera = CreateDefaultSubobject<UCameraComponent>("mainCamera");
 	mainCamera->SetupAttachment(springArm, USpringArmComponent::SocketName);
 	mainCamera->bUsePawnControlRotation = false;
 
 	attack = 5;
 	firingFrequency = 0.6;
-	pace = 5;
+	pace = 10;
+	
 	resilience = 5;
 	health = 100;
+	maxHealth = 100;
 	healthRegen = 4;
 	luck = FMath::RandRange(1, 5);
+
+	ultCooldown = 8.0f;
 }
 
 // Called when the game starts or when spawned
 void ATutorialLevel_TutorialCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+	GlobalVariables().GetInstance().SetPace(600.0f);
+
 	if (myPlayer == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NULL"));
@@ -80,19 +102,38 @@ void ATutorialLevel_TutorialCharacter::Tick(float DeltaTime)
 
 	RotationCode();
 
+	UpdateHealth();
+
 	if (GlobalVariables().GetInstance().GetTutorialInitMove())
 	{
 		MovementCode();
-		Jump();
+		//Jump();
 		if (GlobalVariables().GetInstance().GetCanAttack())
 		{
 			BasicAttack();
 		}
 	}
+
+	if (GlobalVariables().GetInstance().GetCanPickUp())
+	{
+		PickUp();
+	}
+
+	if (GlobalVariables().GetInstance().GetAbilityOneActive())
+	{
+		AbilityOne();
+	}
+
+	if (GlobalVariables().GetInstance().GetUltActive())
+	{
+		Ult();
+	}
 }
 
 void ATutorialLevel_TutorialCharacter::MovementCode()
 {
+	GetCharacterMovement()->MaxWalkSpeed = GlobalVariables().GetInstance().GetPace();
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), pace);
 	// Check if "W" key is pressed
 	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
 	{
@@ -100,7 +141,7 @@ void ATutorialLevel_TutorialCharacter::MovementCode()
 		FVector ForwardVector = GetActorForwardVector();
 
 		// Move the character forward
-		AddMovementInput(ForwardVector, 10);
+		AddMovementInput(ForwardVector, pace);
 	}
 	// Check if "A" key is pressed
 	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A))
@@ -109,7 +150,7 @@ void ATutorialLevel_TutorialCharacter::MovementCode()
 		FVector RightVector = GetActorRightVector();
 
 		// Move the character left
-		AddMovementInput(-RightVector, 10);
+		AddMovementInput(-RightVector, pace);
 	}
 	// Check if "S" key is pressed
 	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S))
@@ -118,7 +159,7 @@ void ATutorialLevel_TutorialCharacter::MovementCode()
 		FVector ForwardVector = GetActorForwardVector();
 
 		// Move the character backwards
-		AddMovementInput(-ForwardVector, 10);
+		AddMovementInput(-ForwardVector, pace);
 	}
 	// Check if "D" key is pressed
 	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D))
@@ -127,7 +168,7 @@ void ATutorialLevel_TutorialCharacter::MovementCode()
 		FVector RightVector = GetActorRightVector();
 
 		// Move the character right
-		AddMovementInput(RightVector, 10);
+		AddMovementInput(RightVector, pace);
 	}
 }
 
@@ -180,6 +221,31 @@ void ATutorialLevel_TutorialCharacter::BasicAttack()
 	}
 }
 
+void ATutorialLevel_TutorialCharacter::PickUp()
+{
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::F))
+	{
+		TutorialLevel_HandleCollision().GetInstance().DestroyMacaroni();
+		TutorialLevel_HandleCollision().GetInstance().SwitchWeapons();
+		forkBP = TutorialLevel_HandleCollision().GetInstance().GetLevelOneForkBP();
+
+		TutorialLevel_HandleCollision().GetInstance().GetSpawnRoomPortal()->SetVisible();
+	}
+}
+
+void ATutorialLevel_TutorialCharacter::AbilityOne()
+{
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Q) && GlobalVariables().GetInstance().GetCanUseAbilityOne())
+	{
+		TutorialLevel_HandleCollision().GetInstance().SetAbilityOneVisibility(true);
+	}
+}
+
+void ATutorialLevel_TutorialCharacter::UpdateHealth()
+{
+	TutorialLevel_HandleCollision().GetInstance().UpdatePlayerHealth();
+}
+
 void ATutorialLevel_TutorialCharacter::Jump()
 {
 	// Check if the character can jump
@@ -194,6 +260,25 @@ void ATutorialLevel_TutorialCharacter::Jump()
 	if (GetCharacterMovement()->IsMovingOnGround())
 	{
 		isJumping = false;
+	}
+}
+
+void ATutorialLevel_TutorialCharacter::Ult()
+{
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::SpaceBar) && GlobalVariables().GetInstance().GetCanUseUlt())
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("ULT"));
+		AActor* ult = GetWorld()->SpawnActor<AActor>(TutorialLevel_HandleCollision().GetInstance().GetUlt(), ultSpawnPoint->GetActorLocation(), GetActorRotation());
+		TutorialLevel_HandleCollision().GetInstance().UseUlt();
+
+		bool ultActive = false;
+		GlobalVariables().GetInstance().SetCanUseUlt(ultActive);
+
+		GetWorld()->GetTimerManager().SetTimer(ultCooldownTimer, [=]() mutable
+			{
+				bool nextUltActive = true;
+				GlobalVariables().GetInstance().SetCanUseUlt(nextUltActive);
+			}, ultCooldown, false);
 	}
 }
 

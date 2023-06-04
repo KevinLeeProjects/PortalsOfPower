@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MagicMacaroni_Tutorial.generated.h"
+#include "TutorialLevel_AbilityRoomPortal.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PORTALSOFPOWER_API UMagicMacaroni_Tutorial : public UActorComponent
+class PORTALSOFPOWER_API UTutorialLevel_AbilityRoomPortal : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UMagicMacaroni_Tutorial();
+	UTutorialLevel_AbilityRoomPortal();
 
 protected:
 	// Called when the game starts
@@ -23,8 +23,14 @@ protected:
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit);
 
-	UFUNCTION()
-	void OnCollisionEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NewSpawnPoint")
+	AActor* newSpawnPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NewSpawnPoint")
+	AActor* newGuideSpawnPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NewSpawnPoint")
+	AActor* guide;
 
 public:	
 	// Called every frame

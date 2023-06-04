@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 #include "TutorialLevel_TutorialCharacter.generated.h"
 
 UCLASS()
@@ -29,10 +30,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	AActor* forkSpawnPoint; 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	AActor* ultSpawnPoint;
+
 	void MovementCode();
 	void RotationCode();
 	void Jump();
 	void BasicAttack();
+	void PickUp();
+	void UpdateHealth();
+	void AbilityOne();
+	void Ult();
 
 public:	
 	// Called every frame
@@ -49,12 +57,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = "SpawnFork")
 	UClass* forkBP;
 
+	
+
 private:
 	float attack;
 	float firingFrequency;
 	float pace;
 	float resilience;
 	float health;
+	float maxHealth;
 	float healthRegen;
 	float luck;
+
+	FTimerHandle ultCooldownTimer;
+	float ultCooldown;
 };

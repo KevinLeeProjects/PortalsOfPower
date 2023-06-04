@@ -184,7 +184,7 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 		// Create a JSON object for the first element
 		TSharedPtr<FJsonObject> stats = MakeShareable(new FJsonObject);
 		stats->SetNumberField(TEXT("Attack"), 5); 
-		stats->SetNumberField(TEXT("Firing Frequency"), 10);
+		stats->SetNumberField(TEXT("Firing Frequency"), 0.6);
 		stats->SetNumberField(TEXT("Pace"), 5);
 		stats->SetNumberField(TEXT("Resilience"), 5);
 		stats->SetNumberField(TEXT("Health"), 100);
@@ -193,6 +193,7 @@ void USignupScreen_SignupButton::CreatePlayerDatabase(FHttpRequestPtr databseReq
 
 		TSharedPtr<FJsonObject> charClass = MakeShareable(new FJsonObject);
 		charClass->SetStringField(TEXT("Class"), "Chef");
+		charClass->SetNumberField(TEXT("WeaponLevel"), 0);
 
 		TSharedPtr<FJsonObject> charLevel = MakeShareable(new FJsonObject);
 		charLevel->SetNumberField(TEXT("Exp"), 0);

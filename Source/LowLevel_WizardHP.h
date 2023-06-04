@@ -25,4 +25,7 @@ public:
 	void UpdateHealth(float damage);
 
 	float health;
+	float maxHealth;
+
+	float resilience;
 };

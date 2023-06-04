@@ -1,8 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "TutorialLevel_HandleCollision.h"
-#include "Components/BoxComponent.h"
 #include "MagicMacaroni_Tutorial.h"
+#include "TutorialLevel_HandleCollision.h"
+#include "GlobalVariables.h"
+#include "Components/BoxComponent.h"
+
 
 // Sets default values for this component's properties
 UMagicMacaroni_Tutorial::UMagicMacaroni_Tutorial()
@@ -17,7 +19,9 @@ UMagicMacaroni_Tutorial::UMagicMacaroni_Tutorial()
 		{
 			//GetOwner()->SetRootComponent(boxComp);
 			//boxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			TutorialLevel_HandleCollision().GetInstance().SetMacaroni(this);
 			boxComp->OnComponentBeginOverlap.AddDynamic(this, &UMagicMacaroni_Tutorial::OnComponentHit);
+			boxComp->OnComponentEndOverlap.AddDynamic(this, &UMagicMacaroni_Tutorial::OnCollisionEnd);
 		}
 	}
 	// ...
@@ -29,7 +33,7 @@ void UMagicMacaroni_Tutorial::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	TutorialLevel_HandleCollision().GetInstance().SetMacaroni(this);
+	//TutorialLevel_HandleCollision().GetInstance().SetMacaroni(this);
 	// ...
 	
 }
@@ -45,9 +49,25 @@ void UMagicMacaroni_Tutorial::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UMagicMacaroni_Tutorial::OnComponentHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("I: %s"), *OtherActor->GetActorLabel());
-	if (OtherActor->GetActorLabel() == "TutorialLevel_TutorialCharacter5")
+	//UE_LOG(LogTemp, Warning, TEXT("I: %s"), *OtherActor->GetActorLabel());
+	/*if (OtherActor->GetActorLabel() == "TutorialLevel_TutorialCharacter5")
 	{
 
+	}*/
+	if (OtherActor->ActorHasTag("Player"))
+	{
+		bool move = false;
+		GlobalVariables().GetInstance().SetTutorialInitMove(move);
+
+		TutorialLevel_HandleCollision().GetInstance().ShowItem();
 	}
+}
+
+void UMagicMacaroni_Tutorial::OnCollisionEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	// Perform your desired actions when the collision is broken
+	// You can access the involved actors and components to determine the specific behavior you want.
+
+	TutorialLevel_HandleCollision().GetInstance().HideArrow(2);
+	TutorialLevel_HandleCollision().GetInstance().HideItem();
 }
