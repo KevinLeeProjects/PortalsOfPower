@@ -2,6 +2,7 @@
 
 
 #include "TutorialLevel_Ult.h"
+#include "LowLevel_WizardAttack.h"
 #include "Components/BoxComponent.h"
 
 // Sets default values for this component's properties
@@ -48,7 +49,8 @@ void UTutorialLevel_Ult::OnComponentHit(UPrimitiveComponent* OverlappedComponent
 {
 	if (OtherActor->ActorHasTag("Enemy"))
 	{
-
+		ULowLevel_WizardAttack* wizzy = OtherActor->FindComponentByClass<ULowLevel_WizardAttack>();
+		wizzy->TakeDamage(50);
 	}
 }
 

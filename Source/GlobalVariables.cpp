@@ -37,6 +37,7 @@ GlobalVariables::GlobalVariables()
 	ultActive = false;
 	ultWizardTrain = false;
 	canUseUlt = false;
+	outro = false;
 }
 
 GlobalVariables::~GlobalVariables()
@@ -285,4 +286,14 @@ void GlobalVariables::SetCanUseUlt(bool& cast)
 bool GlobalVariables::GetCanUseUlt()
 {
 	return canUseUlt;
+}
+
+void GlobalVariables::SetOutro(bool& out)
+{
+	outro = out;
+}
+
+bool GlobalVariables::GetOutro()
+{
+	return outro;
 }

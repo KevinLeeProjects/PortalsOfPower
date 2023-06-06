@@ -43,8 +43,7 @@ void ULowLevel_Wizard::BeginPlay()
 void ULowLevel_Wizard::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	//FacePlayer();
+	FacePlayer();
 	// ...
 }
 
@@ -56,15 +55,15 @@ void ULowLevel_Wizard::SpawnMacaroni()
 
 void ULowLevel_Wizard::FacePlayer()
 {
-	//if (TutorialLevel_HandleCollision().GetInstance().GetPlayer())
-	//{
-	//	// Get the direction from the enemy component to the player
-	//	FVector Direction = TutorialLevel_HandleCollision().GetInstance().GetPlayer()->GetActorLocation() - GetOwner()->GetActorLocation();
-	//	Direction.Z = 0.0f; // Ensure the enemy only rotates in the XY plane
+	if (TutorialLevel_HandleCollision().GetInstance().GetPlayer())
+	{
+		// Get the direction from the enemy component to the player
+		FVector Direction = TutorialLevel_HandleCollision().GetInstance().GetPlayer()->GetActorLocation() - GetOwner()->GetActorLocation();
+		Direction.Z = 0.0f; // Ensure the enemy only rotates in the XY plane
 
-	//	// Rotate the enemy component to face the player
-	//	FRotator TargetRotation = Direction.Rotation() + FRotator(0.0f, -90.0f, 0.0f);
-	//	//SetWorldRotation(TargetRotation);
-	//	GetOwner()->SetActorRotation(TargetRotation);
-	//}
+		// Rotate the enemy component to face the player
+		FRotator TargetRotation = Direction.Rotation() + FRotator(0.0f, -90.0f, 0.0f);
+		//SetWorldRotation(TargetRotation);
+		GetOwner()->SetActorRotation(TargetRotation);
+	}
 }

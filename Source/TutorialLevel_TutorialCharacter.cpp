@@ -56,6 +56,7 @@ ATutorialLevel_TutorialCharacter::ATutorialLevel_TutorialCharacter()
 	mainCamera->SetupAttachment(springArm, USpringArmComponent::SocketName);
 	mainCamera->bUsePawnControlRotation = false;
 
+
 	attack = 5;
 	firingFrequency = 0.6;
 	pace = 10;

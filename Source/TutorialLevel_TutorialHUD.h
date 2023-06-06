@@ -149,6 +149,4 @@ public:
 	//Part 2
 
 	void IntroducePortals();
-
-	
 };

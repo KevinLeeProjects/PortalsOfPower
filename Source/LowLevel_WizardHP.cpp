@@ -9,12 +9,12 @@
 
 void ULowLevel_WizardHP::NativeConstruct()
 {
-	/*health = 50;
+	health = 50;
 	maxHealth = 50;
 	float healthPercent = health / maxHealth;
 	resilience = 0;
 	healthProgressBar->SetPercent(healthPercent);
-	TutorialLevel_HandleCollision().GetInstance().SetWizardHPHUD(this, health);*/
+	TutorialLevel_HandleCollision().GetInstance().SetWizardHPHUD(this, health);
 }
 
 //void ULowLevel_WizardHP::SetWizard(ULowLevel_Wizard* wizzy)
@@ -22,15 +22,21 @@ void ULowLevel_WizardHP::NativeConstruct()
 //	wizard = wizzy;
 //}
 
-void ULowLevel_WizardHP::UpdateHealth(float damage)
+void ULowLevel_WizardHP::UpdateHealth(float damage, AActor* owner)
 {
-	/*health -= (damage - resilience);
+	health -= (damage - resilience);
 	float healthPercent = health / maxHealth;
 	healthProgressBar->SetPercent(healthPercent);
 
-	if (health <= 0)
+	if (health <= 0 && owner == nullptr)
 	{
 		TutorialLevel_HandleCollision().GetInstance().WizardDeath();
 		TutorialLevel_HandleCollision().GetInstance().GetWizard()->SpawnMacaroni();
-	}*/
+	}
+	
+	if (health <= 0 && owner!= nullptr)
+	{
+		owner->Destroy();
+		TutorialLevel_HandleCollision().GetInstance().Outro();
+	}
 }

@@ -53,6 +53,7 @@ protected:
 	bool ultActive;
 	bool ultWizardTrain;
 	bool canUseUlt;
+	bool outro;
 
 public:
 	
@@ -137,4 +138,7 @@ public:
 
 	void SetCanUseUlt(bool& cast);
 	bool GetCanUseUlt();
+
+	void SetOutro(bool& out);
+	bool GetOutro();
 };

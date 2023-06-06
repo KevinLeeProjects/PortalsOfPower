@@ -68,9 +68,10 @@ void UTutorialLevel_ForkComponent::OnComponentHit(UPrimitiveComponent* Overlappe
 		}
 		else if (OtherActor->ActorHasTag("Enemy"))
 		{
-			/*ULowLevel_WizardAttack* wizard = OtherActor->FindComponentByClass<ULowLevel_WizardAttack>();
-			GetOwner(
-			wizard->TakeDamage(10.0f);*/
+			ULowLevel_WizardAttack* wizard = OtherActor->FindComponentByClass<ULowLevel_WizardAttack>();
+			//GetOwner(
+			DestroySelf();
+			wizard->TakeDamage(10.0f);
 		}
 	}
 }

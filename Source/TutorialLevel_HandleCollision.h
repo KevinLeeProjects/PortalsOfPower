@@ -118,6 +118,8 @@ public:
 	void SetWizardAttack(UClass* wiz);
 	UClass* GetWizardAttack();
 
+	void Outro();
+
 private: 
 
 	//Part 1

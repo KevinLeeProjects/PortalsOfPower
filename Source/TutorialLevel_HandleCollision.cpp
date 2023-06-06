@@ -182,7 +182,7 @@ void TutorialLevel_HandleCollision::ForkDamage(AActor* collider, UTutorialLevel_
 {
 	if (wizardHP)
 	{
-		wizardHP->UpdateHealth(10);
+		wizardHP->UpdateHealth(10, nullptr);
 		thisFork->DestroySelf();
 	}
 	else
@@ -255,7 +255,12 @@ void TutorialLevel_HandleCollision::IntroducePortals()
 void TutorialLevel_HandleCollision::PlayerTakeDamage(float damage)
 {
 	float currentHealth = tutorialHUD->Health->GetPercent();
-	tutorialHUD->Health->SetPercent(currentHealth - (damage / 100));
+	float newHealth = currentHealth - (damage / 100);
+	if (newHealth <= 0.01)
+	{
+		newHealth = 0.01;
+	}
+	tutorialHUD->Health->SetPercent(newHealth);
 	UpdatePlayerHealth();
 }
 
@@ -343,4 +348,11 @@ void TutorialLevel_HandleCollision::SetWizardAttack(UClass* wiz)
 UClass* TutorialLevel_HandleCollision::GetWizardAttack()
 {
 	return wizardAttack;
+}
+
+void TutorialLevel_HandleCollision::Outro()
+{
+	bool out = true;
+	GlobalVariables().GetInstance().SetOutro(out);
+	tutorialHUD->SetText("Congrats on finishing the tutorial! That is all I can teach you. You have to figure the rest out by yourself. Best of luck!");
 }

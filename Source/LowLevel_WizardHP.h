@@ -22,7 +22,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UProgressBar* healthProgressBar;
 
-	void UpdateHealth(float damage);
+	void UpdateHealth(float damage, AActor* owner);
 
 	float health;
 	float maxHealth;

@@ -7,6 +7,7 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 //UE5 Text and float conversion
 #include "Internationalization/Text.h"
@@ -14,6 +15,13 @@
 
 #include "Engine/Texture2D.h"  // Include the Texture2D header if working with textures
 #include "Materials/MaterialInstanceDynamic.h"  // Include the MaterialInstanceDynamic header if working with materials
+
+//HTTP and JSON
+#include "HttpModule.h"
+#include "Interfaces/IHttpResponse.h"
+#include "JsonUtilities.h"
+#include "JsonObjectConverter.h"
+#include "Json.h"
 
 void UTutorialLevel_TutorialHUD::NativeConstruct()
 {
@@ -54,7 +62,7 @@ void UTutorialLevel_TutorialHUD::NativeConstruct()
         arrowArray[i]->SetVisibility(ESlateVisibility::Hidden);
     }
 
-    DelayBetweenLetters = 0.01f; // The delay between adding each letter (in seconds)
+    DelayBetweenLetters = 0.05f; // The delay between adding each letter (in seconds)
     CurrentLetterIndex = 0; // The index of the current letter being displayed
     //MainText->SetText(FText::FromString(TEXT(": Welcome to Portals of Power!")));
     bool macExplain = false;
@@ -226,6 +234,37 @@ void UTutorialLevel_TutorialHUD::UpdateText()
 
                 bool ultActive = true;
                 GlobalVariables().GetInstance().SetCanUseUlt(ultActive);
+
+                bool getUltWizardTrain = false;
+                GlobalVariables().GetInstance().SetUltWizardTrain(getUltWizardTrain);
+            }
+            else if (GlobalVariables().GetInstance().GetOutro())
+            {
+
+                GetWorld()->GetTimerManager().ClearTimer(ultCooldownHandleHUD);
+
+                GetWorld()->GetTimerManager().ClearTimer(abilityOneCooldownHandleHUD);
+
+                FString username = GlobalVariables().GetInstance().GetUsername();
+                FString databaseURL = "https://portals-of-power-default-rtdb.firebaseio.com/players/" + username.ToLower() + ".json";
+
+                FString RequestBody = "{\"TutorialComplete\": \"true\"}"; // JSON payload with the new value
+
+                TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+                HttpRequest->SetVerb("PATCH");
+                HttpRequest->SetURL(databaseURL);
+                HttpRequest->SetContentAsString(RequestBody);
+
+                UWorld* world = GetWorld();
+                HttpRequest->OnProcessRequestComplete().BindLambda([world](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+                    {
+                        FString gameClient = "GameClient";
+                        UGameplayStatics::OpenLevel(world, FName(*gameClient));
+                    });
+
+                // Send the HTTP request
+                HttpRequest->ProcessRequest();
+
             }
     }
 }
